@@ -3,6 +3,8 @@ import { languages, type Language } from "./language";
 import { useEffect, useRef, useState } from "react";
 import { describe, watchGamepads, type ButtonBinding } from "./joystick";
 
+import { AudioOutputSettings } from "./AudioOutputSettings";
+
 export function GeneralSettings({
   locale,
   changeLanguage,
@@ -73,6 +75,7 @@ export function GeneralSettings({
           ))}
         </select>
       </label>
+      <AudioOutputSettings />
       <h3>{tr("Simulator cue button")}</h3>
       <p>
         {tr(

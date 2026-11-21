@@ -1,12 +1,12 @@
 # Stagecue Rehearsal Studio for Windows
 
-Launch Stagecue from the Start menu. Closing its window stops its local services. The app includes the Hebrew recognizer, a multilingual Whisper fallback, prerecorded partner audio, the SceneMax WebGPU projector, the multiplayer relay and the browser gateway. Local recognition runs offline. Browser speech and YouTube depend on external services. SceneMax rendering requires a WebGPU-capable graphics driver. The installer targets 64-bit Windows 10 build 19041 or later and includes the offline Microsoft WebView2 installer.
+Launch Stagecue from the Start menu. Closing its window stops its local services. The app includes the Hebrew recognizer, a multilingual Whisper fallback in the full edition, prerecorded partner audio, the SceneMax WebGPU projector, the multiplayer relay and the browser gateway. Local recognition runs offline. Browser speech and YouTube depend on external services. SceneMax rendering requires a WebGPU-capable graphics driver. The installer targets 64-bit Windows 10 build 19041 or later and includes the offline Microsoft WebView2 installer.
 
 ## Attach a scene to a play
 
 1. In SceneMax, export the complete scene for **Web**. Keep the export ZIP intact, including its manifest. Alternatively select a project folder containing a single entry named `scripts/main.smx` or `scripts/main` and its resource tree.
 2. In **Scene Editor → SceneMax attachment for this script**, choose **Scene ZIP** or **Scene folder**. Wait for the attached filename and click **Save scene**. Each rehearsal script can have its own scene.
-3. Add a **SceneMax** action to the relevant cue. Set its event and message to the names your scene handles. Edit the gateway, project, session and room under **Scene Editor → Scene general settings → SceneMax connection**. Changes apply to the scripts in that scene. A new attachment sets up a local room automatically.
+3. Add a **SceneMax** action to the relevant cue. Choose the event your scene handles or enter a custom event name. Expand Advanced settings on the action to supply an optional message. Stagecue connects the cue and the embedded player to its bundled local server automatically.
 4. Return to Rehearsal and start the scene. The stage monitor runs the installed SceneMax runtime with the imported scripts and resources.
 
 For example, a scene can listen for a cue named `lights_amber`:
@@ -35,4 +35,6 @@ A scene can contain several scripts. Choose **Add script** in Scene Editor to cr
 
 In the cue editor, **Play audio**, **Show image**, and **Play video** each take a file. Choose an existing file from the script library or use **Browse files…** in the action row. Browsed files travel with the exported scene. For **Wait**, enter a duration in seconds, such as 0.25 for a quarter of a second.
 
-**Text to speech** in the cue editor renders a partner line locally. Enter Hebrew under **Spoken text**, choose **Noa** or **Omer** (both bundled), or **Asaf** if Windows Hebrew speech is installed, then click **Generate speech** and **Save scene**. Set **Speaking speed** from 0.75× to 1.5× and **Pitch (semitones)** from −6 to +6. Generate again after changing the words, voice or tuning. The scene file carries the editable text, voice selection and generated WAV. Rehearsal and student playback use that WAV immediately. The new cue action requires Stagecue 1.3.0 or later.
+**Text to speech** speaks Hebrew locally at rehearsal time. Enter the line, choose Noa or Omer, adjust speed and pitch, and save. The default scene stores the text and voice. **Generate speech** optionally embeds a WAV for immediate playback, as in older scenes.
+
+The Hebrew-only edition includes the גאון–איריס elevator rehearsal and a shareable copy in the installation’s `examples/Gaon-Iris.srs` file. Its local recognizer accepts Hebrew dialogue. The interface language is configured separately.

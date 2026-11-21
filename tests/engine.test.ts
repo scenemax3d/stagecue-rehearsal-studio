@@ -157,17 +157,59 @@ test("leading and trailing optional words cannot replace required evidence", () 
   assert.equal(say(e, 300, "חייבים לפעול עכשיו", "b"), true);
 });
 
-test("streaming word feedback updates the line without firing a cue mid-speech", () => {
+test("Oliver cue 19 fires once on exact streaming recognition even with weak history", () => {
   const e = setup();
-  const event = {
-    id: "stream",
-    text: e.turn.expectedText,
-    at: 1000,
-    final: false,
-    feedbackOnly: true,
-  };
-  assert.equal(e.accept(event), false);
-  assert.ok(e.armed);
-  assert.deepEqual(e.feedback?.marks, ["heard", "heard"]);
-  assert.equal(e.accept({ ...event, feedbackOnly: false, final: true }), true);
+  const t = e.show.states[3];
+  t.expectedText = "קלטתי איפה זה. אני לא בודק אותך שם.";
+  t.scriptedTurn = true;
+  e.enter(t.id);
+  e.history.push({ stateId: e.show.states[2].id, at: 700, score: 0.8, text: "previous" });
+  const h = { id: "speech", at: 1000, text: "קלטתי איפה זה", final: false, feedbackOnly: true };
+  assert.equal(e.accept(h), false);
+  const full = { ...h, text: "קלטתי איפה זה אני לא בודק אותך שם" };
+  assert.ok(e.accept(full));
+  assert.equal(e.score, 1);
+  assert.ok(e.feedback!.marks.every(mark => mark === "heard"));
+  e.complete(e.epoch);
+  assert.equal(e.id, t.nextStateId);
+  assert.equal(e.accept({ ...full, feedbackOnly: false, final: true }), false);
+  assert.equal(e.serial, 1);
+});
+
+test("a provisional exact alternative that also starts a longer line waits for the endpoint", () => {
+  const e = setup();
+  e.turn.expectedText = "אני מוכן עכשיו";
+  e.turn.alternatives = ["אני מוכן"];
+  e.turn.scriptedTurn = true;
+  const h = { id: "short", at: 800, text: "אני מוכן", final: false, feedbackOnly: true };
+  assert.equal(e.accept(h), false);
+  assert.ok(e.accept({ ...h, feedbackOnly: false, final: true }));
+});
+
+test("Oliver cue 20 accepts a final-word substitution but waits through pauses", () => {
+  const e = setup();
+  const t = e.show.states[3];
+  t.scriptedTurn = true;
+  t.expectedText = "כבר שלושה לילות אני לא ישן. זה מגרד, ואז אני נוגע, ואז זה נורא שורף. תסתכל שנייה. מרחוק. אני לא מבקש שתיגע.";
+  t.alternatives = [];
+  e.enter(t.id);
+  e.history.push({ stateId: "earlier", at: 500, score: 1, text: "previous" });
+  const prefix = normalize(t.expectedText).split(" ").slice(0, -1).join(" ");
+  assert.equal(say(e, 1000, prefix, "first"), false);
+  assert.equal(e.feedback?.marks.at(-1), "pending");
+  const last = { id: "second", at: 1400, text: "שתגיע", final: false };
+  assert.equal(e.accept({ ...last, earlyProbe: true }), false);
+  assert.equal(e.accept({ ...last, feedbackOnly: true }), false);
+  assert.ok(e.accept({ ...last, final: true }));
+  assert.equal(e.feedback?.marks.at(-1), "unheard");
+  e.complete(e.epoch);
+  assert.equal(e.id, t.nextStateId);
+});
+
+test("a short scripted line with a different ending still needs stronger evidence", () => {
+  const e = setup();
+  e.turn.scriptedTurn = true;
+  e.turn.expectedText = "טוב תראה לי";
+  e.turn.alternatives = [];
+  assert.equal(say(e, 1000, "טוב תראה לה"), false);
 });

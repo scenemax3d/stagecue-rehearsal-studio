@@ -1,0 +1,14 @@
+How to build a Stagecue .srs file
+A .srs is a ZIP archive. Use Stagecue’s Scene Editor and Export Scene File, or follow the actual package writer and script schema linked below. A single-script archive has stagecue.json (format "StageCue", version 1), show.json and all referenced media at their exact asset paths. An optional SceneMax attachment goes under scene/ with game-manifest.json and its resources. For multiple scripts, the root stagecue.json uses version 2 with title, scriptCount and active (zero-based index). Each scripts/0/, scripts/1/, etc. directory contains a complete version 1 package. Put the manifest at the archive root.
+
+Minimal single-script example for the installed Studio (UTF-8 JSON):
+stagecue.json: {"format":"StageCue","version":1,"media":{}}
+show.json: {"schemaVersion":"1.0","showId":"lesson","title":"Lesson","language":"he-IL","startStateId":"1","recognition":{},"assets":[],"states":[{"id":"1","kind":"human_line","actor":"א","expectedText":"שלום","nextStateId":"2"},{"id":"2","kind":"virtual_line","actor":"ב","expectedText":"שלום לך","actions":[{"type":"text_to_speech","voice":"noa","text":"שלום לך"}],"nextStateId":null}]}
+Older repository snapshots and examples may include mandatory prerendered speech assets. Use the text-only action shown here for the target Studio.
+
+References in the public Stagecue repository:
+Package reader and writer: https://github.com/scenemax3d/stagecue-rehearsal-studio/blob/main/src/srs.ts
+Script and cue schema: https://github.com/scenemax3d/stagecue-rehearsal-studio/blob/main/src/model.ts
+Working two-role example: https://github.com/scenemax3d/stagecue-rehearsal-studio/blob/main/examples/elevator/Gaon-Iris.srs
+
+If you cannot access those references, use a local Stagecue checkout or ask me to attach an exported .srs as a format example. Create a separate scene and preserve my existing rehearsals.

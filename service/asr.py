@@ -8,8 +8,6 @@ from pathlib import Path
 
 import numpy as np
 import sherpa_onnx
-from faster_whisper import WhisperModel
-from huggingface_hub import snapshot_download
 from websockets.asyncio.server import serve
 
 RATE = 16000
@@ -24,6 +22,7 @@ def load_hebrew():
     if configured:
         path = Path(configured)
     else:
+        from huggingface_hub import snapshot_download
         try:
             folder = snapshot_download(MODEL, revision=REVISION, local_files_only=True)
             if not (Path(folder) / "sherpa-onnx/encoder.int8.onnx").is_file():
@@ -85,12 +84,14 @@ class Utterance:
 
 async def main():
     hebrew = load_hebrew()
+    hebrew_only = Path(__file__).with_name("hebrew-only.marker").is_file()
     whisper = None
     lock = asyncio.Lock()
 
     def offline(data, language):
         nonlocal whisper
         if whisper is None:
+            from faster_whisper import WhisperModel
             whisper = WhisperModel(os.getenv("CUE_MODEL", "small"), device="cpu", compute_type="int8")
         audio = np.frombuffer(data, dtype="<i2").astype(np.float32) / 32768
         segments, _ = whisper.transcribe(audio, language=language, beam_size=3,
@@ -121,7 +122,10 @@ async def main():
                     return
                 updates = event.get("wordFeedback") is True
                 language = event.get("language", "he-IL").split("-")[0]
-                model = hebrew if language == "he" and os.getenv("CUE_ASR") != "whisper" else None
+                if hebrew_only and language != "he":
+                    await ws.send(json.dumps({"type": "error", "message": "This edition recognizes Hebrew speech only."}))
+                    return
+                model = hebrew if hebrew_only or language == "he" and os.getenv("CUE_ASR") != "whisper" else None
                 utterance = Utterance(model)
                 uid = None
                 await ws.send(json.dumps({"type": "ready", "streaming": model is not None}))

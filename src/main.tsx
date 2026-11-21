@@ -1,9 +1,10 @@
+import { restoreOutput } from "./audioOutput";
 import { tr } from "./language";
 import { language, switchLanguage, type Language, message } from "./language";
 import { StageCueFiles } from "./StageCueFiles";
 import { MicrophoneControls } from "./MicrophoneControls";
 import { loadScene } from "./sceneLibrary";
-import { localGateway, resolveGateway } from "./localhost";
+import { localGateway } from "./localhost";
 import React, { useState, useEffect, useRef, useReducer } from "react";
 import { createRoot } from "react-dom/client";
 import {
@@ -35,7 +36,6 @@ import {
 } from "lucide-react";
 import { demo, projects, sceneOf, sceneScripts } from "./storage";
 import type { Show } from "./model";
-import { roomPassword, setRoomPassword } from "./scenemax";
 import {
   displayText,
   lineParts,
@@ -45,6 +45,7 @@ import {
 import { spokenText } from "./engine";
 import { Session, names } from "./session";
 import { Editor } from "./Editor";
+import { HelpMenu } from "./HelpMenu";
 import { GeneralSettings } from "./GeneralSettings";
 import {
   loadBinding,
@@ -53,6 +54,7 @@ import {
   type ButtonBinding,
 } from "./joystick";
 import "./style.css";
+void restoreOutput().catch(console.warn);
 const pad = (n: number) => String(n).padStart(2, "0");
 function MarkedLine({
   parts,
@@ -192,7 +194,8 @@ function Studio() {
     <>
       <header className={windowBridge ? "desktop-header" : undefined}>
         <div className="headwrap">
-          <a className="brand" href="#player">
+          <a className="brand" href="#player" dir="ltr">
+            <img src="/stagecue.png" className="brandmark" alt="" />
             Stagecue
           </a>
           <nav>
@@ -205,6 +208,7 @@ function Studio() {
               {tr("Scene Editor")}{" "}
             </a>
           </nav>
+          <HelpMenu />
           <button
             className="settings-trigger"
             aria-label={tr("General settings")}
@@ -350,7 +354,6 @@ function Player({
   const embed =
     !!show.scenePackage ||
     (show.sceneMax &&
-      resolveGateway(show.sceneMax.gateway) === localGateway &&
       show.sceneMax.projectGuid === "stagecue-elevator" &&
       show.sceneMax.sessionId === 1000 &&
       show.sceneMax.scene === "main");
@@ -438,8 +441,8 @@ function Player({
               {
                 type: "stagecue-scene",
                 bundle,
-                room: { ...room, gateway: resolveGateway(room.gateway) },
-                password: roomPassword(room),
+                room: { ...room, gateway: localGateway },
+                password: "",
               },
               location.origin,
             ),
@@ -466,6 +469,7 @@ function Player({
     };
   }, [embed, attempt, s]);
   const output = s.player.stage;
+  const timer = s.player.countdown;
   useEffect(() => {
     if (video.current)
       video.current.replaceChildren(...(output ? [output] : []));
@@ -517,26 +521,6 @@ function Player({
       : "—";
   return (
     <>
-      {show.sceneMax && (
-        <details className="room-credentials">
-          <summary>{tr("SceneMax connection")}</summary>
-          <p>
-            {show.sceneMax.gateway} · {show.sceneMax.projectGuid} ·{" "}
-            {show.sceneMax.sessionId} · {show.sceneMax.scene}
-          </p>
-          <label>
-            {tr("Server password")}{" "}
-            <input
-              type="password"
-              autoComplete="off"
-              defaultValue={roomPassword(show.sceneMax)}
-              onChange={(ev) =>
-                setRoomPassword(show.sceneMax!, ev.target.value)
-              }
-            />
-          </label>
-        </details>
-      )}
       <div className="upper">
         <section className="card monitor">
           <div
@@ -701,6 +685,15 @@ function Player({
               {phase[e.phase]}
             </span>
           </div>
+          {timer && (
+            <div className="cue-countdown">
+              <div><strong>{tr(timer.label)}</strong><span>
+                {e.phase === "PAUSED" && tr("Paused") + (timer.total ? " · " : "")}
+                {timer.total > 0 && tr("{n} s remaining").replace("{n}", (Math.ceil(timer.remaining / 100) / 10).toLocaleString(language))}
+              </span></div>
+              <progress aria-label={tr(timer.label)} max={timer.total || 1} value={timer.total ? timer.total - timer.remaining : undefined} />
+            </div>
+          )}
         </section>
         <section className="card sheet">
           <div className="cardhead">

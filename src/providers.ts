@@ -127,7 +127,10 @@ export class LocalHebrewASRProvider implements RecognitionProvider {
         );
       ws.onmessage = (e) => {
         const ready = JSON.parse(e.data);
-        if (ready.type === "ready") {
+        if (ready.type === "error") {
+          clearTimeout(timer);
+          reject(Error(ready.message));
+        } else if (ready.type === "ready") {
           streaming = ready.streaming === true;
           clearTimeout(timer);
           resolve();

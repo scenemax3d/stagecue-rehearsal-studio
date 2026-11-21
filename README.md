@@ -62,7 +62,7 @@ In **Scene Editor**, select a cue and choose **Run in parallel** under **Action 
 
 Images and YouTube clips share the stage monitor. They stay on screen while rehearsal advances until another visual cue replaces them, you jump, or you stop. A YouTube link needs internet access and a video that permits embedding. Use the embedded play control if the browser blocks autoplay. Audio, local video and timed actions finish before the next turn is armed. A sequential cue retains its original action order.
 
-Set the shared **SceneMax connection** to the browser WebSocket gateway URL (local default `ws://127.0.0.1:9002`), project GUID, session ID (usually 1000), and scene (usually `main`). The gateway must allow the exact Stagecue origin, normally `http://127.0.0.1:5173`. For a password-protected server, enter the password in the editor or the player's SceneMax connection panel after a page reload. The password stays in tab memory and is excluded from project exports.
+Stagecue routes every scene through its bundled local server, including imported scripts. Choose or enter the event name on the cue.
 
 Start the SceneMax player in the same room. For example, configure the Stagecue event as `animation_cue` and the message as `lift_shakes`. In the player, put your existing animation commands in a handler for that event:
 
@@ -113,3 +113,5 @@ Build on x64 Windows using Inno Setup 6, the .NET Framework C# compiler, the Sce
 The installer defaults to Hebrew. For an English-default build run `pwsh -File installer/build.ps1 -DefaultLanguage en`. The Inno compiler define `StudioLanguage` also accepts `he`, `en`, `de` and `es`. An existing user preference takes precedence.
 
 For **Text to speech** in development, install the speech dependencies in the Python 3.10 virtual environment and run `.venv/Scripts/python.exe installer/prepare_tts.py` once to stage the pinned models. Vite starts the loopback speech worker. The desktop installer includes Noa, Omer (Pocket TTS with the Hebrew adapter), and Renikud pronunciation. Both voices generate new lines offline. Speed and pitch settings are saved per cue and baked into the shared audio.
+
+Build the Hebrew-only Windows installer with `pwsh -File installer/build.ps1 -HebrewOnly`. It includes local Hebrew recognition, Noa and Omer, offline WebView2 setup, and the two-role elevator scene. The default output is `release/Stagecue-Setup-HebrewOnly-x64.exe`. Both installer editions share the user workspace and run one at a time.

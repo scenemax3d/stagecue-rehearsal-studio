@@ -204,6 +204,7 @@ test("editor saves parallel YouTube, image and SceneMax actions and player dispa
   );
   await page.goto("/#editor");
   const base = await (await page.request.get("/example-show.json")).json();
+  base.sceneMax = { gateway: "wss://legacy.invalid", projectGuid: "legacy", sessionId: 1000, scene: "main" };
   base.showId = "parallel-test";
   base.title = "Parallel test";
   base.assets.push({ id: "photo", type: "image", uri: "assets/stage.webp" });
@@ -234,10 +235,11 @@ test("editor saves parallel YouTube, image and SceneMax actions and player dispa
     .fill("https://youtu.be/M7lc1UVf-VE?t=4");
   await page.getByLabel("Action type").selectOption("scenemax");
   await add.click();
-  await page.locator(".scene-settings summary").click();
-  await page.getByLabel("Project GUID").fill("stagecue-test");
-  await page.getByLabel("WebSocket gateway").fill("ws://127.0.0.1:21972");
+  await expect(page.getByLabel("Project GUID")).toBeHidden();
+  await expect(page.getByLabel("WebSocket gateway")).toBeHidden();
   await page.getByLabel("Event name").fill("animation_cue");
+  await expect(page.getByLabel("Message", { exact: true })).toBeHidden();
+  await page.getByLabel("Event name").locator("../..").getByText("Advanced settings").click();
   await page.getByLabel("Message", { exact: true }).fill("lights");
   await page.getByRole("button", { name: "Save scene" }).click();
   await page.getByRole("link", { name: "Rehearsal", exact: true }).click();
@@ -293,24 +295,13 @@ test("optional words survive editing and the actor can review word matches after
   await expect(page.locator(".word-feedback p .match-heard")).toHaveCount(4);
 });
 
-test("scene connection changes reach sibling scripts and action delete icons stay physically right", async ({
+test("connection fields are absent and action delete icons stay physically right", async ({
   page,
 }) => {
   await page.goto("/?show=gaon-iris-gaon-elevator#editor");
-  const settings = page.locator(".scene-settings");
-  await settings.locator("summary").click();
-  await settings.getByLabel("Project GUID").fill("shared-stage-room");
-  await page.getByRole("button", { name: "Save scene" }).click();
+  await expect(page.getByLabel("WebSocket gateway")).toHaveCount(0);
+  await expect(page.getByLabel("Project GUID")).toHaveCount(0);
   const scripts = page.getByLabel("Scripts in scene");
-  await scripts.selectOption("gaon-iris-iris-elevator");
-  await page.reload();
-  await page.locator(".scene-settings summary").click();
-  await expect(
-    page.locator(".scene-settings").getByLabel("Project GUID"),
-  ).toHaveValue("shared-stage-room");
-  await expect(
-    page.locator(".cueform fieldset").getByLabel("Project GUID"),
-  ).toHaveCount(0);
   await scripts.selectOption("gaon-iris-gaon-elevator");
   await page.locator(".editcue").nth(5).click();
   const table = page.locator("table.actionlist");
@@ -332,7 +323,7 @@ test("scene connection changes reach sibling scripts and action delete icons sta
   };
   await check();
   await page.getByRole("button", { name: "General settings" }).click();
-  await page.locator("dialog select").selectOption("he");
+  await page.locator('dialog select:has(option[value="he"])').selectOption("he");
   await page.keyboard.press("Escape");
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
@@ -415,7 +406,7 @@ test("alternative phrasing rows save independently and action controls line up",
   for (const lang of ["en", "he"]) {
     if (lang === "he") {
       await page.getByRole("button", { name: "General settings" }).click();
-      await page.locator("dialog select").selectOption("he");
+      await page.locator('dialog select:has(option[value="he"])').selectOption("he");
       await page.keyboard.press("Escape");
     }
     for (const width of [1280, 390]) {
@@ -490,7 +481,7 @@ test("scene script controls align in English and Hebrew", async ({ page }) => {
   for (const language of ["en", "he"]) {
     if (language === "he") {
       await page.getByRole("button", { name: "General settings" }).click();
-      await page.locator("dialog select").selectOption("he");
+      await page.locator('dialog select:has(option[value="he"])').selectOption("he");
       await page.keyboard.press("Escape");
     }
     for (const width of [1280, 720, 390]) {
@@ -568,4 +559,93 @@ test("authored Hebrew speech survives sharing and plays without synthesis", asyn
   } finally {
     await student.close();
   }
+});
+
+test("Oliver's timed picture leaves the next actor cue listening", async ({ page }) => {
+  const show = await (await page.request.get("/example-show.json")).json();
+  show.showId = "timed-picture";
+  show.assets = [{ id: "apartment", type: "image", uri: "assets/stage.webp" }];
+  show.states = [
+    { id: "21", actor: "אריק", kind: "human_line", expectedText: "טוב תראה לי.", nextStateId: "22",
+      actions: [{ type: "show_image", assetId: "apartment", durationMs: 12000 }] },
+    { id: "22", actor: "אריק", kind: "human_line", expectedText: "איכס. מה זה הדבר הזה?", nextStateId: null },
+  ];
+  show.startStateId = "21";
+  show.recognition.cooldownMs = 0;
+  await page.addInitScript(s => {
+    localStorage.setItem("stagecue.projects", JSON.stringify([s]));
+    localStorage.setItem("stagecue.selected", s.showId);
+  }, show);
+  await page.goto("/");
+  await page.getByLabel("Input source").selectOption("mock");
+  await page.getByRole("button", { name: "Start rehearsal", exact: true }).click();
+  const simulate = page.getByRole("button", { name: "Simulate", exact: true });
+  await simulate.click();
+  await expect(page.locator(".counter")).toHaveText("02 / 02", { timeout: 2000 });
+  await expect(page.locator(".phase")).toHaveText("Listening");
+  await expect(page.locator(".stage img")).toBeVisible();
+  await page.getByLabel("Simulated Hebrew utterance").fill("איכס מה זה הדבר הזה");
+  await simulate.click();
+  await expect(page.locator(".phase")).toHaveText("Scene complete", { timeout: 2000 });
+});
+
+test("a blocking wait counts down, pauses, and clears on advance or stop", async ({ page }) => {
+  const show = await (await page.request.get("/example-show.json")).json();
+  show.showId = "wait-countdown";
+  show.states[0].actions = [{ type: "wait", durationMs: 1800 }];
+  await page.addInitScript(s => {
+    localStorage.setItem("stagecue.projects", JSON.stringify([s]));
+    localStorage.setItem("stagecue.selected", s.showId);
+  }, show);
+  await page.goto("/");
+  await page.getByLabel("Input source").selectOption("mock");
+  const start = page.getByRole("button", { name: "Start rehearsal", exact: true });
+  const simulate = page.getByRole("button", { name: "Simulate", exact: true });
+  const progress = page.getByRole("progressbar", { name: "Timed wait" });
+  await start.click();
+  await simulate.click();
+  await expect(progress).toBeVisible();
+  await expect.poll(() => progress.evaluate(el => (el as HTMLProgressElement).value)).toBeGreaterThan(0);
+  await page.getByRole("button", { name: "Pause rehearsal" }).click();
+  const remaining = page.locator(".cue-countdown span");
+  await expect(remaining).toContainText("Paused");
+  const frozen = await remaining.innerText();
+  await page.waitForTimeout(350);
+  await expect(remaining).toHaveText(frozen);
+  await page.getByRole("button", { name: "Resume", exact: true }).click();
+  await expect(page.locator(".counter")).toHaveText("02 / 05");
+  await expect(progress).toHaveCount(0);
+  await page.getByRole("button", { name: "Restart rehearsal" }).click();
+  await simulate.click();
+  await expect(progress).toBeVisible();
+  await page.getByRole("button", { name: "Stop rehearsal", exact: true }).click();
+  await expect(progress).toHaveCount(0);
+});
+
+test("an imported image duration can be edited in seconds and cleared", async ({ page }) => {
+  const show = await (await page.request.get("/example-show.json")).json();
+  show.showId = "image-duration";
+  show.assets.push({ id: "picture", type: "image", uri: "assets/stage.webp" });
+  show.states[0].actions.unshift({ type: "show_image", assetId: "picture", durationMs: 12000 });
+  await page.goto("/#editor");
+  await page.evaluate(s => {
+    localStorage.setItem("stagecue.projects", JSON.stringify([s]));
+    localStorage.setItem("stagecue.selected", s.showId);
+  }, show);
+  await page.reload();
+  const duration = page.getByRole("spinbutton", { name: "Image duration (seconds)" });
+  const save = page.getByRole("button", { name: "Save scene" });
+  const timing = page.getByText("The next action starts when this timer ends.");
+  await expect(duration).toHaveValue("12");
+  await expect(timing).toBeVisible();
+  await duration.fill("1.25");
+  await save.click();
+  await page.reload();
+  await expect(duration).toHaveValue("1.25");
+  await page.getByLabel("Action timing").selectOption("parallel");
+  await expect(timing).toHaveCount(0);
+  await duration.fill("");
+  await save.click();
+  await page.reload();
+  await expect(duration).toHaveValue("");
 });

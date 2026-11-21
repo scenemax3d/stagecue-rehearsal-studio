@@ -1,13 +1,7 @@
-import {resolveGateway} from "./localhost";
+import { localGateway } from "./localhost";
 import type { Show } from "./model";
 type Room = NonNullable<Show["sceneMax"]>;
 const utf8 = new TextEncoder();
-const passwords = new Map<string, string>();
-const roomKey = (room: Room) =>
-  JSON.stringify([room.gateway, room.projectGuid]);
-export const roomPassword = (room: Room) => passwords.get(roomKey(room)) ?? "";
-export const setRoomPassword = (room: Room, value: string) =>
-  passwords.set(roomKey(room), value);
 function packet(kind: number, client: number, size: number) {
   const bytes = new Uint8Array(8 + size);
   const view = new DataView(bytes.buffer);
@@ -20,7 +14,7 @@ function packet(kind: number, client: number, size: number) {
 async function login(room: Room) {
   const hash = await crypto.subtle.digest(
     "SHA-256",
-    utf8.encode(roomPassword(room)),
+    utf8.encode(""),
   );
   const bytes = packet(1, 0, 357);
   bytes.set(new Uint8Array(hash), 8);
@@ -40,7 +34,7 @@ export async function broadcast(
   const hello = await login(room);
   signal.throwIfAborted();
   await new Promise<void>((resolve, reject) => {
-    const ws = new WebSocket(resolveGateway(room.gateway));
+    const ws = new WebSocket(localGateway);
     ws.binaryType = "arraybuffer";
     let client = 0,
       settled = false;

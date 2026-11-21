@@ -12,7 +12,7 @@ test("the language changes immediately, persists, and keeps the cue sheet on the
     ["es", "Estudio de ensayo"],
     ["he", "אולפן חזרות"],
   ]) {
-    await page.locator("dialog select").selectOption(lang);
+    await page.locator('dialog select:has(option[value="he"])').selectOption(lang);
     await expect(page.locator("h1")).toHaveText(heading);
   }
   await page.reload();
@@ -147,4 +147,53 @@ test("a multi-script scene preserves its active script and per-script SceneMax a
   } finally {
     await student.close();
   }
+});
+
+test("a remote author can package the wizard example with text-only Hebrew speech", async ({ page }) => {
+  const instructions = await readFile("src/create-scene-prompt.txt", "utf8");
+  const entries = Object.fromEntries(["stagecue.json", "show.json"].map(name => {
+    const line = instructions.split(/\r?\n/).find(s => s.startsWith(name + ": "))!;
+    return [name, strToU8(line.slice(name.length + 2))];
+  }));
+  const wav = await readFile("public/assets/ari-1.wav");
+  let request;
+  await page.route("**/api/speech", async route => {
+    request = route.request().postDataJSON();
+    await route.fulfill({ contentType: "audio/wav", body: wav });
+  });
+  await page.goto("/");
+  await page.locator('input[accept=".srs"]').setInputFiles({
+    name: "lesson.srs", mimeType: "application/zip", buffer: Buffer.from(zipSync(entries)),
+  });
+  await expect(page.getByLabel("Active scene").locator("option:checked")).toHaveText("Lesson");
+  await page.getByLabel("Input source").selectOption("mock");
+  await page.getByRole("button", { name: "Start rehearsal", exact: true }).click();
+  await page.getByRole("button", { name: "Simulate", exact: true }).click();
+  await expect.poll(() => request).toEqual({ voice: "noa", text: "שלום לך" });
+  await expect(page.locator(".phase")).toHaveText("Scene complete", { timeout: 15000 });
+});
+
+test("settings route a test sound to the selected output and remember it", async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator.mediaDevices, "enumerateDevices", {
+      value: async () => [{ kind: "audiooutput", deviceId: "headphones", label: "Headphones" }],
+    });
+    Object.defineProperty(navigator.mediaDevices, "setPreferredSinkId", {
+      value: async (id: string) => { document.documentElement.dataset.testSink = id; },
+    });
+  });
+  await page.goto("/");
+  const open = page.getByRole("button", { name: "General settings" });
+  const output = page.getByRole("combobox", { name: "Audio output" });
+  await open.click();
+  await output.selectOption("headphones");
+  await expect(page.locator("html")).toHaveAttribute("data-test-sink", "headphones");
+  await page.getByRole("button", { name: "Test sound" }).click();
+  await expect(page.getByText("Test sound finished.")).toBeVisible();
+  await page.reload();
+  await expect(page.locator("html")).toHaveAttribute("data-test-sink", "headphones");
+  await open.click();
+  await expect(output).toHaveValue("headphones");
+  await output.selectOption("");
+  await expect(page.locator("html")).toHaveAttribute("data-test-sink", "");
 });

@@ -1,7 +1,11 @@
+import { routeMedia, releaseMedia } from "./audioOutput";
 import type { Action, Show, Turn } from "./model";
 import { mediaUrl } from "./storage";
 import { youtubeEmbed } from "./youtube";
+import { synthesizeSpeech } from "./speech";
 import { broadcast } from "./scenemax";
+type CueTimer = { label: string; total: number; remaining: number };
+
 export interface ActionExecutor {
   run(
     actions: Action[],
@@ -16,7 +20,16 @@ export class Playback implements ActionExecutor {
   paused = false;
   disposed = false;
   stage?: HTMLElement;
+  private speech = new Map<string, HTMLAudioElement>();
   private active = new Set<HTMLMediaElement>();
+  private timers = new Set<CueTimer>();
+  get countdown() {
+    let longest: CueTimer | undefined;
+    for (const timer of this.timers)
+      if (!longest || timer.remaining > longest.remaining) longest = timer;
+    return longest;
+  }
+  private visualLifetime = new AbortController();
   private network = new AbortController();
   private pending = new Set<Promise<void>>();
   constructor(
@@ -42,6 +55,8 @@ export class Playback implements ActionExecutor {
     }
   }
   reset() {
+    this.timers.clear();
+    this.visualLifetime.abort();
     this.network.abort();
     this.network = new AbortController();
     this.stage?.replaceChildren();
@@ -56,6 +71,14 @@ export class Playback implements ActionExecutor {
       m.removeAttribute("src");
       m.load();
     });
+    this.speech.forEach(m => {
+      const url = m.src;
+      m.pause();
+      m.removeAttribute("src");
+      m.load();
+      URL.revokeObjectURL(url);
+    });
+    this.speech.clear();
     this.urls.forEach((u) => {
       if (u.startsWith("blob:")) URL.revokeObjectURL(u);
     });
@@ -85,16 +108,36 @@ export class Playback implements ActionExecutor {
         m.dispatchEvent(new Event("error"));
     });
   }
-  private async wait(ms: number, signal: AbortSignal) {
+  private async wait(ms: number, signal: AbortSignal, tick?: (remaining: number) => void) {
     let last = performance.now();
     while (ms > 0 || this.paused) {
       signal.throwIfAborted();
       await new Promise((r) => setTimeout(r, Math.min(30, Math.max(5, ms))));
       const now = performance.now();
-      if (!this.paused) ms -= now - last;
+      if (!this.paused) {
+        ms -= now - last;
+        tick?.(ms);
+      }
       last = now;
     }
     signal.throwIfAborted();
+  }
+  private async timedWait(ms: number, signal: AbortSignal, label: string) {
+    if (!ms) return this.wait(0, signal);
+    const timer = { label, total: ms, remaining: ms };
+    this.timers.add(timer);
+    this.update();
+    try {
+      await this.wait(ms, signal, remaining => {
+        if (Math.ceil(remaining / 100) !== Math.ceil(timer.remaining / 100)) {
+          timer.remaining = Math.max(0, remaining);
+          this.update();
+        }
+      });
+    } finally {
+      this.timers.delete(timer);
+      this.update();
+    }
   }
   async settleNetwork() {
     await Promise.all(this.pending);
@@ -113,6 +156,8 @@ export class Playback implements ActionExecutor {
     let group: HTMLElement | undefined;
     const present = (el: HTMLElement) => {
       if (!group || mode !== "parallel") {
+        this.visualLifetime.abort();
+        this.visualLifetime = new AbortController();
         this.stage?.replaceChildren();
         group = document.createElement("div");
         group.className = "cue-outputs";
@@ -121,9 +166,9 @@ export class Playback implements ActionExecutor {
       group.append(el);
       this.update();
     };
-    const execute = async (a: Action) => {
-      await this.wait("delayMs" in a ? (a.delayMs ?? 0) : 0, token);
-      if (a.type === "wait") return this.wait(a.durationMs, token);
+    const execute = async (a: Action, index: number) => {
+      await this.timedWait("delayMs" in a ? (a.delayMs ?? 0) : 0, token, "Media delay");
+      if (a.type === "wait") return this.timedWait(a.durationMs, token, "Timed wait");
       if (a.type === "emit_ws") {
         this.notice(
           "Legacy WebSocket action is disabled. Use a SceneMax broadcast action.",
@@ -159,9 +204,9 @@ export class Playback implements ActionExecutor {
         present(frame);
         return;
       }
-      const url = this.urls.get(a.assetId);
-      if (!url) throw Error("Missing media: " + a.assetId);
       if (a.type === "show_image") {
+        const url = this.urls.get(a.assetId);
+        if (!url) throw Error("Missing media: " + a.assetId);
         const img = new Image();
         img.alt = a.assetId;
         img.src = url;
@@ -170,14 +215,49 @@ export class Playback implements ActionExecutor {
         present(img);
         onset();
         if (a.durationMs) {
-          await this.wait(a.durationMs, token);
-          img.remove();
-          if (!group?.childElementCount) this.stage = undefined;
-          this.update();
+          const hide = () => {
+            img.remove();
+            if (this.stage === group && !group?.childElementCount) this.stage = undefined;
+            this.update();
+          };
+          if (mode === "sequential" && index < actions.length - 1) {
+            // Preserve timing between explicitly sequenced actions in this cue.
+            await this.timedWait(a.durationMs, token, "Image display");
+            hide();
+          } else {
+            // The image owns the remaining display time; the actor can continue.
+            const lifetime = this.visualLifetime.signal;
+            void this.wait(a.durationMs, lifetime).then(hide, () => {});
+          }
         }
         return;
       }
-      const original = this.cache.get(a.assetId);
+      let original = a.assetId ? this.cache.get(a.assetId) : undefined;
+      if (a.type === "text_to_speech" && !a.assetId) {
+        const key = JSON.stringify([a.voice, a.text, a.speed ?? 1, a.pitch ?? 0]);
+        original = this.speech.get(key);
+        if (!original) {
+          const preparing = { label: "Preparing speech", total: 0, remaining: 0 };
+          this.timers.add(preparing);
+          this.update();
+          let blob: Blob;
+          try {
+            blob = await synthesizeSpeech(a, token);
+          } finally {
+            this.timers.delete(preparing);
+            this.update();
+          }
+          token.throwIfAborted();
+          if (this.disposed) throw new DOMException("Stopped", "AbortError");
+          original = this.speech.get(key);
+          if (!original) {
+            const audio = new Audio(URL.createObjectURL(blob));
+            this.speech.set(key, audio);
+            original = audio;
+          }
+        }
+        await this.wait(0, token);
+      }
       if (!original) throw Error("Missing media: " + a.assetId);
       const m = this.active.has(original)
         ? (original.cloneNode(true) as HTMLMediaElement)
@@ -185,10 +265,28 @@ export class Playback implements ActionExecutor {
       m.currentTime = 0;
       m.volume = a.type === "play_audio" ? (a.volume ?? 1) : 1;
       if (a.type === "play_video") present(m);
+      await routeMedia(m);
+      if (token.aborted) { releaseMedia(m); token.throwIfAborted(); }
       this.active.add(m);
       await new Promise<void>((resolve, reject) => {
+        const timer = { label: a.type === "play_video" ? "Video playback" : "Audio playback", total: 0, remaining: 0 };
+        const syncTime = () => {
+          if (!Number.isFinite(m.duration) || m.duration <= 0) return;
+          timer.total = m.duration * 1000;
+          timer.remaining = Math.max(0, timer.total - m.currentTime * 1000);
+          this.timers.add(timer);
+          this.update();
+        };
+        m.addEventListener("timeupdate", syncTime);
+        m.addEventListener("durationchange", syncTime);
+        syncTime();
         const cleanup = () => {
+          m.removeEventListener("timeupdate", syncTime);
+          m.removeEventListener("durationchange", syncTime);
+          this.timers.delete(timer);
+          this.update();
           this.active.delete(m);
+          releaseMedia(m);
           m.removeEventListener("ended", ended);
           m.removeEventListener("error", error);
           m.removeEventListener("playing", onset);
@@ -201,7 +299,7 @@ export class Playback implements ActionExecutor {
           error = () => {
             cleanup();
             reject(
-              Error("Cannot play " + a.assetId + ". Check its media file."),
+              Error(a.assetId ? "Cannot play " + a.assetId + ". Check its media file." : "Cannot play synthesized speech."),
             );
           },
           cancel = () => {
@@ -218,7 +316,7 @@ export class Playback implements ActionExecutor {
     };
     try {
       if (mode === "parallel") await Promise.all(actions.map(execute));
-      else for (const a of actions) await execute(a);
+      else for (const [index, action] of actions.entries()) await execute(action, index);
     } catch (e) {
       local.abort();
       throw e;

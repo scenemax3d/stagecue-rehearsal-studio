@@ -5,7 +5,8 @@ from huggingface_hub import snapshot_download
 
 root = Path(__file__).resolve().parents[1]
 build = root / "packaging"
-out = build / "payload"
+hebrew_only = "--hebrew-only" in sys.argv
+out = build / ("payload-hebrew" if hebrew_only else "payload")
 runtime = out / "python"
 runtime.mkdir(parents=True, exist_ok=True)
 archive = build / "cache/python.zip"
@@ -17,8 +18,9 @@ with zipfile.ZipFile(archive) as z:
     z.extractall(runtime)
 (runtime/"python310._pth").write_text("python310.zip\n.\nsite-packages\nimport site\n")
 site = Path(sys.prefix)/"Lib/site-packages"
+extra_exclusions = ("faster_whisper*", "ctranslate2*", "tokenizers*", "hf_xet*", "huggingface_hub*", "*.whl") if hebrew_only else ()
 shutil.copytree(site, runtime/"site-packages", dirs_exist_ok=True,
-                ignore=shutil.ignore_patterns("__pycache__", "*.pyc", "pip", "pip-*.dist-info", "piper", "piper_tts-*.dist-info"))
+                ignore=shutil.ignore_patterns("__pycache__", "*.pyc", "pip", "pip-*.dist-info", "piper", "piper_tts-*.dist-info", *extra_exclusions))
 crt = os.getenv("STAGECUE_VC_REDIST")
 if not crt:
     default = Path(os.environ["ProgramFiles"])/"Microsoft Visual Studio"
@@ -33,6 +35,8 @@ for repo,rev,sub,selection,target in [
      ["encoder.int8.onnx","decoder.int8.onnx","joiner.int8.onnx","tokens.txt"],"hebrew"),
     ("Systran/faster-whisper-small","536b0662742c02347bc0e980a01041f333bce120","",
      ["config.json","model.bin","tokenizer.json","vocabulary.txt"],"whisper")]:
+    if target == "whisper" and hebrew_only:
+        continue
     path=Path(snapshot_download(repo,revision=rev,allow_patterns=[(sub+"/" if sub else "")+n for n in selection]+["README.md","LICENSE*"]))
     folder=out/"models"/target
     folder.mkdir(parents=True,exist_ok=True)

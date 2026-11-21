@@ -2,17 +2,30 @@
 #define StudioLanguage "he"
 #endif
 [Setup]
+#ifdef HebrewOnly
+AppId={{34F7950C-A5D0-4E13-BDF0-6A0BB1882511}
+AppName=Stagecue Rehearsal Studio (Hebrew)
+DefaultDirName={localappdata}\Programs\Stagecue-Hebrew
+DefaultGroupName=Stagecue Hebrew
+#else
 AppId={{BF4188C7-B2BE-456D-A843-4F740C366C61}
 AppName=Stagecue Rehearsal Studio
-AppVersion=1.4.0
 DefaultDirName={localappdata}\Programs\Stagecue
 DefaultGroupName=Stagecue
+#endif
+AppVersion=1.4.0
 PrivilegesRequired=lowest
 ArchitecturesAllowed=x64
 ArchitecturesInstallIn64BitMode=x64
 MinVersion=10.0.19041
 OutputDir=..\release
-#if StudioLanguage == "he"
+#ifdef HebrewOnly
+  #if StudioLanguage == "he"
+OutputBaseFilename=Stagecue-Setup-HebrewOnly-x64
+  #else
+OutputBaseFilename=Stagecue-Setup-HebrewOnly-{#StudioLanguage}-x64
+  #endif
+#elif StudioLanguage == "he"
 OutputBaseFilename=Stagecue-Setup-x64
 #else
 OutputBaseFilename=Stagecue-Setup-{#StudioLanguage}-x64
@@ -23,7 +36,11 @@ UninstallDisplayIcon={app}\Stagecue.exe
 AppMutex=Local\Stagecue.RehearsalStudio
 WizardStyle=modern
 [Files]
+#ifdef HebrewOnly
+Source: "..\packaging\payload-hebrew\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+#else
 Source: "..\packaging\payload\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+#endif
 Source: "..\packaging\cache\MicrosoftEdgeWebView2RuntimeInstallerX64.exe"; DestDir: "{tmp}"; Flags: dontcopy nocompression
 [Icons]
 Name: "{group}\Stagecue Rehearsal Studio"; Filename: "{app}\Stagecue.exe"

@@ -8,7 +8,7 @@ from importlib.metadata import version
 from pathlib import Path
 
 root = Path(__file__).resolve().parents[1]
-payload = root / "packaging/payload"
+payload = root / "packaging" / ("payload-hebrew" if "--hebrew-only" in sys.argv else "payload")
 models = payload / "models/tts"
 models.mkdir(parents=True, exist_ok=True)
 noa = "https://huggingface.co/thewh1teagle/piper-he-noa/resolve/23f8e06909e9a1e562a50f99df63e3785451379a/"

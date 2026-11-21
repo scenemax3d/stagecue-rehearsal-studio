@@ -1,3 +1,4 @@
+import { localGateway } from "./localhost";
 import { lineParts } from "./lineMatch";
 import { youtubeEmbed } from "./youtube";
 import { z } from "zod";
@@ -35,10 +36,7 @@ const wireText = (max: number) =>
       "Text exceeds the SceneMax packet field",
     );
 const room = z.object({
-  gateway: z
-    .string()
-    .url()
-    .regex(/^wss?:\/\//, "Use the ws:// or wss:// browser gateway URL"),
+  gateway: z.string().optional().transform(() => localGateway),
   projectGuid: wireText(63).refine(Boolean, "Enter a project GUID"),
   sessionId: z.number().int().min(0).max(4294967295),
   scene: wireText(127).refine(Boolean, "Enter a scene name"),
@@ -77,7 +75,7 @@ const action = z.discriminatedUnion("type", [
     voice: z.enum(["noa", "omer", "asaf"]),
     speed: z.number().min(0.75).max(1.5).optional(),
     pitch: z.number().min(-6).max(6).optional(),
-    assetId: z.string().min(1, "Generate speech for this action."),
+    assetId: id.optional(),
   }),
   z.object({ type: z.literal("wait"), durationMs: ms }),
   z.object({
@@ -167,7 +165,7 @@ export const schema = structure.superRefine((s, c) => {
     }
     for (const a of t.actions)
       if (
-        "assetId" in a &&
+        "assetId" in a && a.assetId !== undefined &&
         !s.assets.some(
           (b) =>
             b.id === a.assetId &&

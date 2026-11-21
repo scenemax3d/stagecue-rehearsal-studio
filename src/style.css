@@ -954,3 +954,30 @@ html[dir="rtl"] .action-content { direction:rtl; }
 .editor .action-upload {position:relative;display:inline-flex;width:auto;margin:0;border:1px solid var(--border);border-radius:5px;padding:7px 9px;cursor:pointer;}
 .action-upload:focus-within {outline:2px solid currentColor;}
 .action-upload input {position:absolute;inset:0;opacity:0;cursor:pointer;}
+
+.help-menu { position:relative; app-region:no-drag; }
+.help-menu summary { cursor:pointer; list-style:none; padding:8px; font-weight:600; }
+.help-menu[open] > div { position:absolute; z-index:6; inset-inline-start:0; top:100%; padding:4px; background:var(--paper); color:var(--ink); border:1px solid var(--border); border-radius:7px; }
+.help-menu button { white-space:nowrap; }
+.about-dialog { app-region:no-drag; width:min(540px,90vw); max-height:82vh; box-sizing:border-box; }
+.about-dialog dt { font-weight:650; }
+.about-dialog dd { margin:2px 0 12px; }
+@media(max-width:800px){ .headwrap:has(.help-menu){gap:6px;} .desktop-header .headwrap nav a svg{display:none;} }
+.help-menu[open] > div { display:grid; gap:3px; }
+.help-menu button { text-align:start; }
+.ai-help textarea { width:100%; height: min(38vh, 350px); box-sizing:border-box; resize:vertical; line-height:1.5; }
+.ai-help label {display:grid;gap:4px;margin-block:12px;}
+.ai-help input:not([type=checkbox]),.ai-help select {width:100%;box-sizing:border-box;}
+.ai-help .wizard-check {display:flex;align-items:center;gap:8px;}
+.wizard-check input {width:auto;}
+.ai-help .settings-controls {margin-block-start:16px;}
+.audio-output-settings { margin-block:16px; }
+.audio-output-settings select { width:100%; margin-block:4px 8px; }
+.audio-output-settings small:not(:empty) { display:block; margin-block-start:6px; }
+.cue-countdown {padding:0 20px 15px;font-size:14px;}
+.cue-countdown > div {display:flex;justify-content:space-between;gap:10px;margin-bottom:4px;}
+.cue-countdown span {font-variant-numeric:tabular-nums;}
+.cue-countdown progress {display:block;width:100%;height:8px;accent-color:#ad5034;}
+.action-media .image-duration {flex:1 0 100%;display:grid;gap:4px;margin-block:4px;}
+.action-media .image-duration input {max-width:9rem;}
+.image-duration small {font-weight:normal;}

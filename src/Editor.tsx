@@ -1,8 +1,8 @@
+import { synthesizeSpeech } from "./speech";
 import { tr } from "./language";
 import { StageCueFiles } from "./StageCueFiles";
-import { importScene } from "./sceneLibrary";
+import { importScene, loadScene } from "./sceneLibrary";
 import { localGateway } from "./localhost";
-import { roomPassword, setRoomPassword } from "./scenemax";
 import { useState, useRef, useEffect } from "react";
 import {
   Plus,
@@ -178,6 +178,33 @@ export function Editor({
   const scriptLine = useRef<HTMLTextAreaElement>(null);
   const [uploadingMedia, setUploadingMedia] = useState(false);
   const [importingScene, setImportingScene] = useState(false);
+  const packageId = d.scenePackage?.id;
+  const [handlerNames, setHandlerNames] = useState<string[]>([]);
+  useEffect(() => {
+    let active = true;
+    setHandlerNames([]);
+    if (packageId) {
+      void loadScene(packageId).then(async ({ assets }) => {
+        const names = new Set<string>();
+        for (const [path, blob] of assets) {
+          if (!/\.smx$|^game\/scripts\/[^.]+$/i.test(path)) continue;
+          const source = await blob.text();
+          for (const match of source.matchAll(/^\s*network\s*\.\s*on\s*\(\s*"([^"\r\n]+)"/gim)) {
+            names.add(match[1]);
+          }
+        }
+        if (active) setHandlerNames([...names]);
+      }).catch(() => { /* The author can still enter a custom event. */ });
+    }
+    return () => { active = false; };
+  }, [packageId]);
+  const eventNames = new Set(handlerNames);
+  for (const state of d.states) {
+    if (state.sceneEntryEvent) eventNames.add(state.sceneEntryEvent);
+    for (const action of state.actions) {
+      if (action.type === "scenemax" && action.event) eventNames.add(action.event);
+    }
+  }
   async function attachScene(files: File[]) {
     if (!files.length) return;
     setImportingScene(true);
@@ -352,7 +379,7 @@ export function Editor({
       turn({
         actions: [
           ...t.actions,
-          { type: v, voice: "noa", text: "", assetId: "" },
+          { type: v, voice: "noa", text: "" },
         ],
       });
     else if (v === "youtube")
@@ -363,7 +390,7 @@ export function Editor({
       patch({
         sceneMax: d.sceneMax ?? {
           gateway: localGateway,
-          projectGuid: "",
+          projectGuid: "stagecue-" + crypto.randomUUID(),
           sessionId: 1000,
           scene: "main",
         },
@@ -431,19 +458,7 @@ export function Editor({
     setUploadingMedia(true);
     note(tr("Generating speech…"));
     try {
-      const response = await fetch("/api/speech", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          voice: action.voice,
-          text: action.text,
-          speed: action.speed,
-          pitch: action.pitch,
-        }),
-      });
-      if (!response.ok) throw new Error(await response.text());
-      if (!response.headers.get("content-type")?.startsWith("audio/wav"))
-        throw new Error("Speech service unavailable.");
+      const audio = await synthesizeSpeech(action);
       const id = crypto.randomUUID();
       const asset = {
         id,
@@ -452,7 +467,7 @@ export function Editor({
       };
       await putMedia(
         d.showId + "/" + asset.uri,
-        new File([await response.blob()], id + ".wav", { type: "audio/wav" }),
+        new File([audio], id + ".wav", { type: "audio/wav" }),
       );
       set((current) => {
         if (!current.states.some((state) => state.actions.includes(action)))
@@ -524,89 +539,9 @@ export function Editor({
           </span>
         </div>
         <div className="editbody">
-          <details className="scene-settings">
-            <summary>{tr("Scene general settings")}</summary>
-            {d.sceneMax ? (
-              <fieldset>
-                <legend>{tr("SceneMax connection")}</legend>
-                <div className="fields two">
-                  {(
-                    ["gateway", "projectGuid", "sessionId", "scene"] as const
-                  ).map((key, i) => (
-                    <label key={key}>
-                      {
-                        [
-                          tr("WebSocket gateway"),
-                          tr("Project GUID"),
-                          tr("Session ID"),
-                          tr("Scene"),
-                        ][i]
-                      }
-                      <input
-                        type={key === "sessionId" ? "number" : "text"}
-                        value={d.sceneMax![key]}
-                        onChange={(e) =>
-                          patch({
-                            sceneMax: {
-                              ...d.sceneMax!,
-                              [key]:
-                                key === "sessionId"
-                                  ? Number(e.target.value)
-                                  : e.target.value,
-                            },
-                          })
-                        }
-                      />
-                    </label>
-                  ))}
-                  <label>
-                    {tr("Server password (this tab only)")}{" "}
-                    <input
-                      key={JSON.stringify([
-                        d.sceneMax.gateway,
-                        d.sceneMax.projectGuid,
-                      ])}
-                      type="password"
-                      autoComplete="off"
-                      defaultValue={roomPassword(d.sceneMax)}
-                      onChange={(e) =>
-                        setRoomPassword(d.sceneMax!, e.target.value)
-                      }
-                    />
-                  </label>
-                </div>
-                <button
-                  disabled={scriptsWithDraft(d).some(
-                    (s) =>
-                      s.scenePackage ||
-                      s.states.some(
-                        (t) =>
-                          t.sceneEntryEvent ||
-                          t.actions.some((a) => a.type === "scenemax"),
-                      ),
-                  )}
-                  onClick={() => patch({ sceneMax: undefined })}
-                >
-                  {tr("Remove connection")}{" "}
-                </button>
-              </fieldset>
-            ) : (
-              <button
-                onClick={() =>
-                  patch({
-                    sceneMax: {
-                      gateway: localGateway,
-                      projectGuid: "",
-                      sessionId: 1000,
-                      scene: "main",
-                    },
-                  })
-                }
-              >
-                {tr("Configure SceneMax connection")}
-              </button>
-            )}
-          </details>
+          <datalist id="scenemax-events">
+            {[...eventNames].sort().map((name) => <option key={name} value={name} />)}
+          </datalist>
           <div className="scene-scripts">
             <label htmlFor="scene-title">{tr("Scene title")}</label>
             <input
@@ -947,10 +882,11 @@ export function Editor({
                                 />
                               </label>
                             ) : a.type === "scenemax" ? (
-                              <div className="fields two">
+                              <div className="fields">
                                 <label>
                                   {tr("Event name")}{" "}
                                   <input
+                                    list="scenemax-events"
                                     value={a.event}
                                     placeholder="animation_cue"
                                     onChange={(e) =>
@@ -964,22 +900,25 @@ export function Editor({
                                     }
                                   />
                                 </label>
-                                <label>
-                                  {tr("Message")}{" "}
-                                  <input
-                                    dir="auto"
-                                    value={a.message}
-                                    onChange={(e) =>
-                                      turn({
-                                        actions: t.actions.map((x, j) =>
-                                          j === i
-                                            ? { ...a, message: e.target.value }
-                                            : x,
-                                        ),
-                                      })
-                                    }
-                                  />
-                                </label>
+                                <details>
+                                  <summary>{tr("Advanced settings")}</summary>
+                                  <label>
+                                    {tr("Message")}{" "}
+                                    <input
+                                      dir="auto"
+                                      value={a.message}
+                                      onChange={(e) =>
+                                        turn({
+                                          actions: t.actions.map((x, j) =>
+                                            j === i
+                                              ? { ...a, message: e.target.value }
+                                              : x,
+                                          ),
+                                        })
+                                      }
+                                    />
+                                  </label>
+                                </details>
                               </div>
                             ) : a.type === "text_to_speech" ? (
                               <div>
@@ -996,7 +935,7 @@ export function Editor({
                                                 ...a,
                                                 voice: e.target
                                                   .value as typeof a.voice,
-                                                assetId: "",
+                                                assetId: undefined,
                                               }
                                             : item,
                                         ),
@@ -1043,7 +982,7 @@ export function Editor({
                                                     [key]: Number(
                                                       e.target.value,
                                                     ),
-                                                    assetId: "",
+                                                    assetId: undefined,
                                                   }
                                                 : item,
                                             ),
@@ -1067,7 +1006,7 @@ export function Editor({
                                             ? {
                                                 ...a,
                                                 text: e.target.value,
-                                                assetId: "",
+                                                assetId: undefined,
                                               }
                                             : item,
                                         ),
@@ -1131,6 +1070,28 @@ export function Editor({
                                     }}
                                   />
                                 </label>
+                                {a.type === "show_image" && (
+                                  <label className="image-duration">
+                                    {tr("Image duration (seconds)")}
+                                    <input
+                                      type="number"
+                                      min="0"
+                                      max="3600"
+                                      step="0.001"
+                                      placeholder="0"
+                                      aria-label={tr("Image duration (seconds)")}
+                                      value={a.durationMs === undefined ? "" : a.durationMs / 1000}
+                                      onChange={e => {
+                                        const durationMs = e.target.value === "" ? undefined : Math.round(e.target.valueAsNumber * 1000);
+                                        turn({ actions: t.actions.map((item, j) => i === j ? { ...a, durationMs } : item) });
+                                      }}
+                                    />
+                                    <small>{tr("0 keeps the image visible until replaced.")}</small>
+                                    {(a.durationMs ?? 0) > 0 && t.actionMode !== "parallel" && i < t.actions.length - 1 && (
+                                      <small>{tr("The next action starts when this timer ends.")}</small>
+                                    )}
+                                  </label>
+                                )}
                               </div>
                             ) : a.type === "wait" ? (
                               <label>

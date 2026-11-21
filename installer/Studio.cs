@@ -63,7 +63,9 @@ class Studio : Form {
                 if(i==300)throw new Exception("Timed out starting studio services. See "+Path.Combine(Data,"studio.log"));
                 await Task.Delay(200);
             }
-            var env=await CoreWebView2Environment.CreateAsync(null,Path.Combine(Data,"WebView"));
+            var options=new CoreWebView2EnvironmentOptions();
+            options.AdditionalBrowserArguments="--enable-features=PreferredAudioOutputDevices --enable-blink-features=PreferredAudioOutputDevices";
+            var env=await CoreWebView2Environment.CreateAsync(null,Path.Combine(Data,"WebView"),options);
             if(closing)return;
             await browser.EnsureCoreWebView2Async(env);
             browser.CoreWebView2.Settings.IsStatusBarEnabled=false;
@@ -113,7 +115,7 @@ class Studio : Form {
             case "\"window:close\"": Close(); break;
         }
     }
-    Studio(){ Text="Stagecue"; FormBorderStyle=FormBorderStyle.None; ShowIcon=false;
+    Studio(){ Text="Stagecue"; FormBorderStyle=FormBorderStyle.None; Icon=System.Drawing.Icon.ExtractAssociatedIcon(Application.ExecutablePath); ShowIcon=true;
         BackColor=Color.Black; Padding=new Padding(FrameWidth); MinimumSize=new Size(580,380);
         loading.BackColor=Color.White;
         Resize+=(s,e)=>{ Padding=new Padding(WindowState==FormWindowState.Maximized ? 0 : FrameWidth); ReportWindowState(); };
