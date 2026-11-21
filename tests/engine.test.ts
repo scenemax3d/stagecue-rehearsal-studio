@@ -213,3 +213,21 @@ test("a short scripted line with a different ending still needs stronger evidenc
   e.turn.alternatives = [];
   assert.equal(say(e, 1000, "טוב תראה לה"), false);
 });
+
+test("Rachel cue 8 advances with one missed word once the actor reaches חודשים", () => {
+  for (const number of ["שבעה", "7", "כמה", ""]) {
+    const e = setup();
+    const t = e.show.states[3];
+    t.scriptedTurn = true;
+    t.expectedText = "(בחיוך מבויש) כן, עברתי לגור שם לפני 7 חודשים";
+    t.alternatives = [];
+    e.enter(t.id);
+    e.history.push({ stateId: "earlier", at: 500, score: 1, text: "previous" });
+    const text = "כן עברתי לגור שם לפני " + number;
+    assert.equal(say(e, 1000, text, "prefix", false), false);
+    assert.ok(say(e, 1300, text + " חודשים", "full"));
+    assert.equal(e.feedback?.marks.at(-2), number === "7" ? "heard" : "unheard");
+    e.complete(e.epoch);
+    assert.equal(e.id, t.nextStateId);
+  }
+});

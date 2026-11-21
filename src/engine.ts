@@ -179,12 +179,12 @@ export class Engine {
         o.raw === best.raw && !!o.input && o.line.startsWith(o.input + " "),
     );
     const exact = input === best.line;
-    // A substitution at the end is marked "unheard"; an unspoken ending is
-    // marked "pending". Only relax the scripted ending after a final result.
-    const heard = best.marks.filter(mark => mark === "heard").length;
-    const strongEndingMatch = t.scriptedTurn && h.final && !isPrefix &&
-      best.marks.at(-1) === "unheard" && heard / best.marks.length >= 0.85;
-    const complete = (exact && (!isPrefix || h.final)) || strongEndingMatch;
+    // A final transcript can establish completion despite an interior or
+    // final substitution. A pending ending still needs more speech.
+    const strongFinalMatch = t.scriptedTurn && h.final && !isPrefix &&
+      best.marks.at(-1) !== "pending" &&
+      best.marks.filter(mark => mark === "heard").length >= best.marks.length * 0.85;
+    const complete = (exact && (!isPrefix || h.final)) || strongFinalMatch;
     const moreToSay =
       t.scriptedTurn &&
       !complete &&
@@ -222,7 +222,7 @@ export class Engine {
     });
     this.context = prior.length ? evidence / prior.length : 0;
     this.score =
-      !exact && !strongEndingMatch && prior.length && recent.some((v) => h.at - v.at <= r.maxHistoryAgeMs)
+      !exact && !strongFinalMatch && prior.length && recent.some((v) => h.at - v.at <= r.maxHistoryAgeMs)
         ? (r.currentLineWeight * this.current +
             r.historyWeight * this.context) /
           (r.currentLineWeight + r.historyWeight)
