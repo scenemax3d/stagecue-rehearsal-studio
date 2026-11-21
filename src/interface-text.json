@@ -1,0 +1,1427 @@
+{
+  "Recognized": [
+    "זוהה",
+    "Erkannt",
+    "Reconocido"
+  ],
+  "Missed or different": [
+    "חסר או שונה",
+    "Fehlt oder weicht ab",
+    "Ausente o diferente"
+  ],
+  "Not heard yet": [
+    "טרם נשמע",
+    "Noch nicht gehört",
+    "Aún no se ha oído"
+  ],
+  "Skipped in matching": [
+    "לא נדרש להתאמה",
+    "Für den Abgleich optional",
+    "Opcional para la coincidencia"
+  ],
+  "Rehearsal": [
+    "חזרה",
+    "Probe",
+    "Ensayo"
+  ],
+  "Script editor": [
+    "עורך התסריטים",
+    "Skripteditor",
+    "Editor de guiones"
+  ],
+  "General settings": [
+    "הגדרות כלליות",
+    "Allgemeine Einstellungen",
+    "Configuración general"
+  ],
+  "System language": [
+    "שפת הממשק",
+    "Oberflächensprache",
+    "Idioma de la interfaz"
+  ],
+  "Local workspace": [
+    "סביבת עבודה מקומית",
+    "Lokaler Arbeitsbereich",
+    "Espacio de trabajo local"
+  ],
+  "ACTOR WORKSPACE": [
+    "סביבת השחקן",
+    "SCHAUSPIELBEREICH",
+    "ESPACIO DEL INTÉRPRETE"
+  ],
+  "Rehearsal studio": [
+    "אולפן חזרות",
+    "Probenstudio",
+    "Estudio de ensayo"
+  ],
+  "Shape your scene, record your cues, and prepare to rehearse.": [
+    "ערכו את הסצנה, הקליטו רפליקות והתכוננו לחזרה.",
+    "Szene bearbeiten, Einsätze aufnehmen und die Probe vorbereiten.",
+    "Edita la escena, graba las intervenciones y prepara el ensayo."
+  ],
+  "Practice your lines with a responsive scene partner.": [
+    "תרגלו את השורות עם שותף לסצנה שמגיב לדיבור שלכם.",
+    "Übe deinen Text mit einem Szenenpartner, der auf dich reagiert.",
+    "Practica tus líneas con un compañero de escena que responde a tu voz."
+  ],
+  "ACTIVE SCRIPT": [
+    "תסריט פעיל",
+    "AKTUELLES SKRIPT",
+    "GUION ACTIVO"
+  ],
+  "Active script": [
+    "תסריט פעיל",
+    "Aktuelles Skript",
+    "Guion activo"
+  ],
+  "Rehearsal workspace": [
+    "סביבת החזרות",
+    "Probenbereich",
+    "Espacio de ensayo"
+  ],
+  "Ready": [
+    "מוכן",
+    "Bereit",
+    "Listo"
+  ],
+  "Listening": [
+    "מקשיב",
+    "Hört zu",
+    "Escuchando"
+  ],
+  "Candidate detected": [
+    "זוהתה התאמה אפשרית",
+    "Mögliche Übereinstimmung",
+    "Posible coincidencia"
+  ],
+  "Cue fired": [
+    "הרפליקה הופעלה",
+    "Einsatz ausgelöst",
+    "Intervención activada"
+  ],
+  "Playing cue": [
+    "הרפליקה מתנגנת",
+    "Einsatz läuft",
+    "Reproduciendo intervención"
+  ],
+  "Paused": [
+    "מושהה",
+    "Pausiert",
+    "En pausa"
+  ],
+  "Error": [
+    "שגיאה",
+    "Fehler",
+    "Error"
+  ],
+  "Scene complete": [
+    "הסצנה הסתיימה",
+    "Szene beendet",
+    "Escena terminada"
+  ],
+  "SceneMax connection": [
+    "חיבור ל־SceneMax",
+    "SceneMax-Verbindung",
+    "Conexión de SceneMax"
+  ],
+  "Server password": [
+    "סיסמת השרת",
+    "Serverpasswort",
+    "Contraseña del servidor"
+  ],
+  "SceneMax rehearsal player": [
+    "נגן החזרות של SceneMax",
+    "SceneMax-Probenspieler",
+    "Reproductor de ensayo SceneMax"
+  ],
+  "STAGE MONITOR": [
+    "תצוגת הבמה",
+    "BÜHNENANSICHT",
+    "VISTA DEL ESCENARIO"
+  ],
+  "Toggle fullscreen": [
+    "מעבר למסך מלא או חזרה",
+    "Vollbild umschalten",
+    "Alternar pantalla completa"
+  ],
+  "REHEARSAL SCRIPT": [
+    "תסריט החזרה",
+    "PROBENSKRIPT",
+    "GUION DE ENSAYO"
+  ],
+  "Hebrew": [
+    "עברית",
+    "Hebräisch",
+    "Hebreo"
+  ],
+  "cues": [
+    "רפליקות",
+    "Einsätze",
+    "intervenciones"
+  ],
+  "SceneMax is unavailable. You can continue rehearsing.": [
+    "SceneMax אינו זמין. ניתן להמשיך בחזרה.",
+    "SceneMax ist nicht verfügbar. Die Probe kann weitergehen.",
+    "SceneMax no está disponible. Puedes continuar el ensayo."
+  ],
+  "Reload player": [
+    "טעינת הנגן מחדש",
+    "Spieler neu laden",
+    "Recargar reproductor"
+  ],
+  "ACTOR LINE": [
+    "שורת השחקן",
+    "DEIN TEXT",
+    "TU LÍNEA"
+  ],
+  "VIRTUAL PARTNER": [
+    "שותף וירטואלי",
+    "VIRTUELLER PARTNER",
+    "COMPAÑERO VIRTUAL"
+  ],
+  "Script hidden": [
+    "התסריט מוסתר",
+    "Skript ausgeblendet",
+    "Guion oculto"
+  ],
+  "Loading SceneMax…": [
+    "טוען את SceneMax…",
+    "SceneMax wird geladen…",
+    "Cargando SceneMax…"
+  ],
+  "Connecting…": [
+    "מתחבר…",
+    "Verbindung wird aufgebaut…",
+    "Conectando…"
+  ],
+  "Resume": [
+    "המשך",
+    "Fortsetzen",
+    "Continuar"
+  ],
+  "Pause rehearsal": [
+    "השהיית החזרה",
+    "Probe pausieren",
+    "Pausar ensayo"
+  ],
+  "Start rehearsal": [
+    "התחלת החזרה",
+    "Probe starten",
+    "Iniciar ensayo"
+  ],
+  "Stop rehearsal": [
+    "עצירת החזרה",
+    "Probe stoppen",
+    "Detener ensayo"
+  ],
+  "Replay last cue": [
+    "ניגון חוזר של הרפליקה האחרונה",
+    "Letzten Einsatz wiederholen",
+    "Repetir última intervención"
+  ],
+  "Manually fire current cue": [
+    "הפעלת הרפליקה הנוכחית ידנית",
+    "Aktuellen Einsatz manuell auslösen",
+    "Activar la intervención actual"
+  ],
+  "Restart rehearsal": [
+    "התחלת החזרה מחדש",
+    "Probe neu starten",
+    "Reiniciar ensayo"
+  ],
+  "Cue sheet": [
+    "רשימת רפליקות",
+    "Einsatzliste",
+    "Lista de intervenciones"
+  ],
+  "Jump to": [
+    "מעבר אל",
+    "Springen zu",
+    "Ir a"
+  ],
+  "Actor line": [
+    "שורת השחקן",
+    "Dein Text",
+    "Tu línea"
+  ],
+  "Virtual partner": [
+    "שותף וירטואלי",
+    "Virtueller Partner",
+    "Compañero virtual"
+  ],
+  "Current": [
+    "נוכחית",
+    "Aktuell",
+    "Actual"
+  ],
+  "Scene progress": [
+    "התקדמות בסצנה",
+    "Szenenfortschritt",
+    "Progreso de la escena"
+  ],
+  "Show script": [
+    "הצגת התסריט",
+    "Skript anzeigen",
+    "Mostrar guion"
+  ],
+  "Hide script": [
+    "הסתרת התסריט",
+    "Skript ausblenden",
+    "Ocultar guion"
+  ],
+  "Speech recognition": [
+    "זיהוי דיבור",
+    "Spracherkennung",
+    "Reconocimiento de voz"
+  ],
+  "Mic on": [
+    "המיקרופון פעיל",
+    "Mikrofon an",
+    "Micrófono activo"
+  ],
+  "Simulated": [
+    "הדמיה",
+    "Simuliert",
+    "Simulado"
+  ],
+  "Mic off": [
+    "המיקרופון כבוי",
+    "Mikrofon aus",
+    "Micrófono apagado"
+  ],
+  "INPUT SOURCE": [
+    "מקור קלט",
+    "EINGABEQUELLE",
+    "FUENTE DE ENTRADA"
+  ],
+  "Input source": [
+    "מקור קלט",
+    "Eingabequelle",
+    "Fuente de entrada"
+  ],
+  "Microphone level": [
+    "עוצמת המיקרופון",
+    "Mikrofonpegel",
+    "Nivel del micrófono"
+  ],
+  "Simulated Hebrew utterance": [
+    "טקסט בעברית להדמיה",
+    "Simulierter hebräischer Text",
+    "Frase simulada en hebreo"
+  ],
+  "Type a line or use the current cue": [
+    "הקלידו שורה או השתמשו ברפליקה הנוכחית",
+    "Text eingeben oder aktuellen Einsatz verwenden",
+    "Escribe una línea o usa la intervención actual"
+  ],
+  "Simulate": [
+    "הדמיה",
+    "Simulieren",
+    "Simular"
+  ],
+  "Hebrew recognition runs on this computer.": [
+    "זיהוי הדיבור בעברית פועל במחשב הזה.",
+    "Die hebräische Spracherkennung läuft auf diesem Computer.",
+    "El reconocimiento en hebreo se ejecuta en este equipo."
+  ],
+  "Browser speech may use an online service.": [
+    "זיהוי הדיבור בדפדפן עשוי להשתמש בשירות מקוון.",
+    "Die Browser-Spracherkennung nutzt möglicherweise einen Onlinedienst.",
+    "El navegador puede usar un servicio de voz en línea."
+  ],
+  "Latest hypothesis": [
+    "תמלול אחרון",
+    "Letzte Erkennung",
+    "Última transcripción"
+  ],
+  "Word match ·": [
+    "התאמת מילים ·",
+    "Wortabgleich ·",
+    "Coincidencia de palabras ·"
+  ],
+  "· Alternative phrasing": [
+    "· ניסוח חלופי",
+    "· Alternative Formulierung",
+    "· Frase alternativa"
+  ],
+  "Optional": [
+    "רשות",
+    "Optional",
+    "Opcional"
+  ],
+  "Hide diagnostics": [
+    "הסתרת נתוני האבחון",
+    "Diagnose ausblenden",
+    "Ocultar diagnóstico"
+  ],
+  "Match diagnostics": [
+    "אבחון התאמה",
+    "Abgleichdiagnose",
+    "Diagnóstico de coincidencia"
+  ],
+  "Session log": [
+    "יומן החזרה",
+    "Probenprotokoll",
+    "Registro del ensayo"
+  ],
+  "events": [
+    "אירועים",
+    "Ereignisse",
+    "eventos"
+  ],
+  "Waiting for rehearsal": [
+    "ממתין לתחילת החזרה",
+    "Warten auf die Probe",
+    "Esperando el ensayo"
+  ],
+  "Cue events will appear here when you start.": [
+    "אירועי החזרה יוצגו כאן עם תחילתה.",
+    "Nach dem Start erscheinen hier die Einsätze.",
+    "Aquí aparecerán los eventos cuando empiece el ensayo."
+  ],
+  "Scene attached. Save the script to use it in rehearsal.": [
+    "הסצנה צורפה. שמרו את התסריט כדי להשתמש בה בחזרה.",
+    "Szene angehängt. Speichere das Skript für die Probe.",
+    "Escena adjunta. Guarda el guion para usarla en el ensayo."
+  ],
+  "Unsaved changes": [
+    "שינויים שטרם נשמרו",
+    "Ungespeicherte Änderungen",
+    "Cambios sin guardar"
+  ],
+  "Saved locally": [
+    "נשמר במחשב",
+    "Lokal gespeichert",
+    "Guardado en el equipo"
+  ],
+  "Cue test complete": [
+    "בדיקת הרפליקה הסתיימה",
+    "Einsatztest abgeschlossen",
+    "Prueba terminada"
+  ],
+  "Save script": [
+    "שמירת התסריט",
+    "Skript speichern",
+    "Guardar guion"
+  ],
+  "Untitled scene": [
+    "סצנה ללא שם",
+    "Unbenannte Szene",
+    "Escena sin título"
+  ],
+  "New": [
+    "חדש",
+    "Neu",
+    "Nuevo"
+  ],
+  "Duplicate": [
+    "שכפול",
+    "Duplizieren",
+    "Duplicar"
+  ],
+  "Import JSON": [
+    "ייבוא JSON",
+    "JSON importieren",
+    "Importar JSON"
+  ],
+  "Export JSON": [
+    "ייצוא JSON",
+    "JSON exportieren",
+    "Exportar JSON"
+  ],
+  "SceneMax scene": [
+    "סצנת SceneMax",
+    "SceneMax-Szene",
+    "Escena de SceneMax"
+  ],
+  "Attach a SceneMax web export or a complete project folder.": [
+    "צרפו ייצוא לאינטרנט של SceneMax או תיקיית פרויקט שלמה.",
+    "SceneMax-Webexport oder vollständigen Projektordner anhängen.",
+    "Adjunta una exportación web de SceneMax o la carpeta completa del proyecto."
+  ],
+  "Scene ZIP": [
+    "קובץ ZIP של הסצנה",
+    "Szenen-ZIP",
+    "ZIP de la escena"
+  ],
+  "Scene folder": [
+    "תיקיית הסצנה",
+    "Szenenordner",
+    "Carpeta de la escena"
+  ],
+  "Detach scene": [
+    "ניתוק הסצנה",
+    "Szene lösen",
+    "Desvincular escena"
+  ],
+  "Importing scene…": [
+    "מייבא סצנה…",
+    "Szene wird importiert…",
+    "Importando escena…"
+  ],
+  "Imported · save to keep this script": [
+    "יובא · שמרו את התסריט",
+    "Importiert · zum Behalten speichern",
+    "Importado · guarda el guion"
+  ],
+  "Import failed:": [
+    "הייבוא נכשל:",
+    "Import fehlgeschlagen:",
+    "Error al importar:"
+  ],
+  "Script title": [
+    "שם התסריט",
+    "Skripttitel",
+    "Título del guion"
+  ],
+  "Language": [
+    "שפת התסריט",
+    "Skriptsprache",
+    "Idioma del guion"
+  ],
+  "Version": [
+    "גרסה",
+    "Version",
+    "Versión"
+  ],
+  "Cue sequence": [
+    "סדר הרפליקות",
+    "Einsatzfolge",
+    "Secuencia de intervenciones"
+  ],
+  "Add cue": [
+    "הוספת רפליקה",
+    "Einsatz hinzufügen",
+    "Añadir intervención"
+  ],
+  "Cue": [
+    "רפליקה",
+    "Einsatz",
+    "Intervención"
+  ],
+  "Move up": [
+    "הזזה למעלה",
+    "Nach oben",
+    "Subir"
+  ],
+  "Move down": [
+    "הזזה למטה",
+    "Nach unten",
+    "Bajar"
+  ],
+  "Remove cue": [
+    "הסרת רפליקה",
+    "Einsatz entfernen",
+    "Eliminar intervención"
+  ],
+  "Speaker": [
+    "דמות",
+    "Sprecher",
+    "Personaje"
+  ],
+  "Turn type": [
+    "סוג הרפליקה",
+    "Einsatzart",
+    "Tipo de intervención"
+  ],
+  "Human actor": [
+    "שחקן אנושי",
+    "Schauspieler",
+    "Intérprete"
+  ],
+  "Script line": [
+    "שורת התסריט",
+    "Skriptzeile",
+    "Línea del guion"
+  ],
+  "Wrap optional words in # signs, for example": [
+    "סמנו מילים שאינן חובה בין סימני #, למשל",
+    "Optionale Wörter mit # umschließen, zum Beispiel",
+    "Rodea las palabras opcionales con #, por ejemplo"
+  ],
+  ". You can say them or leave them out.": [
+    ". אפשר לומר אותן או לדלג עליהן.",
+    ". Du kannst sie sagen oder weglassen.",
+    ". Puedes decirlas u omitirlas."
+  ],
+  "Select words in the script line first.": [
+    "תחילה בחרו מילים בשורת התסריט.",
+    "Wähle zuerst Wörter im Skripttext aus.",
+    "Selecciona primero palabras de la línea."
+  ],
+  "Mark selection optional": [
+    "סימון הבחירה כרשות",
+    "Auswahl als optional markieren",
+    "Marcar selección como opcional"
+  ],
+  "Alternative phrasings · one per line": [
+    "ניסוחים חלופיים · אחד בכל שורה",
+    "Alternative Formulierungen · eine je Zeile",
+    "Frases alternativas · una por línea"
+  ],
+  "Match threshold": [
+    "סף התאמה",
+    "Abgleichschwelle",
+    "Umbral de coincidencia"
+  ],
+  "Add action": [
+    "הוספת פעולה",
+    "Aktion hinzufügen",
+    "Añadir acción"
+  ],
+  "Select an action…": [
+    "בחירת פעולה…",
+    "Aktion wählen…",
+    "Selecciona una acción…"
+  ],
+  "Wait 500 ms": [
+    "המתנה של 500 אלפיות השנייה",
+    "500 ms warten",
+    "Esperar 500 ms"
+  ],
+  "YouTube clip": [
+    "סרטון YouTube",
+    "YouTube-Video",
+    "Vídeo de YouTube"
+  ],
+  "SceneMax broadcast": [
+    "שידור ל־SceneMax",
+    "SceneMax-Nachricht",
+    "Mensaje de SceneMax"
+  ],
+  "Action timing": [
+    "תזמון פעולות",
+    "Aktionsablauf",
+    "Orden de acciones"
+  ],
+  "Run in sequence": [
+    "ביצוע ברצף",
+    "Nacheinander",
+    "En secuencia"
+  ],
+  "Run in parallel": [
+    "ביצוע במקביל",
+    "Parallel",
+    "En paralelo"
+  ],
+  "YouTube link": [
+    "קישור ל־YouTube",
+    "YouTube-Link",
+    "Enlace de YouTube"
+  ],
+  "Event name": [
+    "שם האירוע",
+    "Ereignisname",
+    "Nombre del evento"
+  ],
+  "Message": [
+    "הודעה",
+    "Nachricht",
+    "Mensaje"
+  ],
+  "Remove action": [
+    "הסרת פעולה",
+    "Aktion entfernen",
+    "Eliminar acción"
+  ],
+  "Stop test": [
+    "עצירת הבדיקה",
+    "Test stoppen",
+    "Detener prueba"
+  ],
+  "Test cue": [
+    "בדיקת רפליקה",
+    "Einsatz testen",
+    "Probar intervención"
+  ],
+  "Preview closed": [
+    "התצוגה המקדימה נסגרה",
+    "Vorschau geschlossen",
+    "Vista previa cerrada"
+  ],
+  "Close preview": [
+    "סגירת התצוגה המקדימה",
+    "Vorschau schließen",
+    "Cerrar vista previa"
+  ],
+  "SceneMax connection · shared by this script": [
+    "חיבור SceneMax · משותף לכל התסריט",
+    "SceneMax-Verbindung · für das gesamte Skript",
+    "Conexión SceneMax · para todo el guion"
+  ],
+  "WebSocket gateway": [
+    "שער WebSocket",
+    "WebSocket-Gateway",
+    "Puerta de enlace WebSocket"
+  ],
+  "Project GUID": [
+    "מזהה פרויקט",
+    "Projekt-GUID",
+    "GUID del proyecto"
+  ],
+  "Session ID": [
+    "מזהה הפעלה",
+    "Sitzungs-ID",
+    "ID de sesión"
+  ],
+  "Scene": [
+    "סצנה",
+    "Szene",
+    "Escena"
+  ],
+  "Server password (this tab only)": [
+    "סיסמת השרת (ללשונית זו בלבד)",
+    "Serverpasswort (nur dieser Tab)",
+    "Contraseña del servidor (solo esta pestaña)"
+  ],
+  "Remove connection": [
+    "הסרת החיבור",
+    "Verbindung entfernen",
+    "Eliminar conexión"
+  ],
+  "Advanced cue settings": [
+    "הגדרות רפליקה מתקדמות",
+    "Erweiterte Einsatzeinstellungen",
+    "Ajustes avanzados de la intervención"
+  ],
+  "Minimum current-line score": [
+    "ניקוד מינימלי לשורה הנוכחית",
+    "Mindestwert für die aktuelle Zeile",
+    "Puntuación mínima de la línea actual"
+  ],
+  "Terminal evidence": [
+    "זיהוי סוף השורה",
+    "Erkennung des Zeilenendes",
+    "Detección del final de la línea"
+  ],
+  "Use script setting": [
+    "לפי הגדרת התסריט",
+    "Skripteinstellung verwenden",
+    "Usar el ajuste del guion"
+  ],
+  "Required": [
+    "חובה",
+    "Erforderlich",
+    "Obligatorio"
+  ],
+  "Cue ID": [
+    "מזהה רפליקה",
+    "Einsatz-ID",
+    "ID de intervención"
+  ],
+  "Next cue": [
+    "הרפליקה הבאה",
+    "Nächster Einsatz",
+    "Siguiente intervención"
+  ],
+  "End scene": [
+    "סיום הסצנה",
+    "Szene beenden",
+    "Terminar escena"
+  ],
+  "Cue actions (JSON)": [
+    "פעולות הרפליקה (JSON)",
+    "Einsatzaktionen (JSON)",
+    "Acciones de la intervención (JSON)"
+  ],
+  "Media library ·": [
+    "ספריית מדיה ·",
+    "Medienbibliothek ·",
+    "Biblioteca multimedia ·"
+  ],
+  "assets": [
+    "קובצי מדיה",
+    "Mediendateien",
+    "archivos"
+  ],
+  "Upload matching filenames to reconnect imported media. Files stay in this browser.": [
+    "העלו קבצים עם שמות תואמים כדי לחבר מחדש מדיה שיובאה. הקבצים נשמרים בדפדפן זה.",
+    "Gleichnamige Dateien laden, um importierte Medien zu verbinden. Sie bleiben in diesem Browser.",
+    "Carga archivos con nombres coincidentes para vincular los medios. Se guardan en este navegador."
+  ],
+  "Add or reconnect media": [
+    "הוספה או חיבור מחדש של מדיה",
+    "Medien hinzufügen oder neu verbinden",
+    "Añadir o volver a vincular medios"
+  ],
+  "Unsupported file": [
+    "קובץ לא נתמך",
+    "Datei nicht unterstützt",
+    "Archivo no compatible"
+  ],
+  "Ambiguous file mapping:": [
+    "שיוך קובץ לא חד־משמעי:",
+    "Mehrdeutige Dateizuordnung:",
+    "Asignación de archivo ambigua:"
+  ],
+  "Media type mismatch": [
+    "סוג המדיה אינו תואם",
+    "Medientyp stimmt nicht überein",
+    "El tipo de archivo no coincide"
+  ],
+  "Preview": [
+    "תצוגה מקדימה",
+    "Vorschau",
+    "Vista previa"
+  ],
+  "Preview unavailable. Reconnect the matching file.": [
+    "התצוגה המקדימה אינה זמינה. חברו מחדש את הקובץ התואם.",
+    "Vorschau nicht verfügbar. Passende Datei erneut verbinden.",
+    "Vista previa no disponible. Vuelve a vincular el archivo correspondiente."
+  ],
+  "Recognition settings": [
+    "הגדרות זיהוי דיבור",
+    "Erkennungseinstellungen",
+    "Ajustes de reconocimiento"
+  ],
+  "Provider, speech detection, thresholds and history weights": [
+    "ספק זיהוי, איתור דיבור, ספי התאמה ומשקלי היסטוריה",
+    "Anbieter, Spracherkennung, Schwellenwerte und Verlaufsgewichtung",
+    "Proveedor, detección de voz, umbrales y ponderación del historial"
+  ],
+  "Reconnect missing media in the library:": [
+    "חברו מחדש את המדיה החסרה בספרייה:",
+    "Fehlende Medien in der Bibliothek neu verbinden:",
+    "Vuelve a vincular los archivos que faltan en la biblioteca:"
+  ],
+  "Simulator cue button": [
+    "כפתור הרפליקה בהדמיה",
+    "Einsatztaste im Simulator",
+    "Botón de intervención del simulador"
+  ],
+  "Assign a button on your paired joystick to fire the current cue. Remotes that send keyboard presses also work.": [
+    "הקצו כפתור בבקר המחובר להפעלת הרפליקה הנוכחית. אפשר להשתמש גם בשלט שמדמה לחיצות מקלדת.",
+    "Weise deinem Controller eine Taste für den aktuellen Einsatz zu. Fernbedienungen mit Tastatureingaben funktionieren ebenfalls.",
+    "Asigna un botón del mando para activar la intervención actual. También funcionan mandos que envían pulsaciones de teclado."
+  ],
+  "If your controller is asleep, press and release a button to wake it.": [
+    "כדי להעיר את הבקר לחצו על כפתור ושחררו אותו.",
+    "Drücke kurz eine Taste, um den Controller zu wecken.",
+    "Pulsa y suelta un botón para activar el mando."
+  ],
+  "Press and release the button you want to use. If this is its first press, press it again.": [
+    "לחצו ושחררו את הכפתור הרצוי. אם זו הלחיצה הראשונה, לחצו שוב.",
+    "Gewünschte Taste drücken und loslassen. Bei der ersten Betätigung erneut drücken.",
+    "Pulsa y suelta el botón que quieras usar. Si es la primera pulsación, repítela."
+  ],
+  "Cancel assignment": [
+    "ביטול ההקצאה",
+    "Zuweisung abbrechen",
+    "Cancelar asignación"
+  ],
+  "Assign button": [
+    "הקצאת כפתור",
+    "Taste zuweisen",
+    "Asignar botón"
+  ],
+  "Clear assignment": [
+    "מחיקת ההקצאה",
+    "Zuweisung löschen",
+    "Borrar asignación"
+  ],
+  "Done": [
+    "סיום",
+    "Fertig",
+    "Listo"
+  ],
+  "The microphone list is unavailable.": [
+    "רשימת המיקרופונים אינה זמינה.",
+    "Mikrofonliste nicht verfügbar.",
+    "La lista de micrófonos no está disponible."
+  ],
+  "Opening microphone…": [
+    "פותח מיקרופון…",
+    "Mikrofon wird geöffnet…",
+    "Abriendo micrófono…"
+  ],
+  "Speak into": [
+    "דברו אל",
+    "Sprich in",
+    "Habla por"
+  ],
+  "Signal reaches the speech threshold.": [
+    "האות מגיע לסף זיהוי הדיבור.",
+    "Signal erreicht die Sprachschwelle.",
+    "La señal alcanza el umbral de voz."
+  ],
+  "Signal is low. Try Quiet input or raise the Windows input volume.": [
+    "האות חלש. נסו קלט חלש או הגבירו את עוצמת הקלט ב־Windows.",
+    "Schwaches Signal. Leisen Eingang wählen oder Windows-Eingangspegel erhöhen.",
+    "Señal baja. Activa Entrada débil o sube el volumen de entrada en Windows."
+  ],
+  "No signal. Check mute or select another microphone.": [
+    "אין אות. בדקו השתקה או בחרו מיקרופון אחר.",
+    "Kein Signal. Stummschaltung prüfen oder anderes Mikrofon wählen.",
+    "Sin señal. Comprueba el silencio o selecciona otro micrófono."
+  ],
+  "Microphone": [
+    "מיקרופון",
+    "Mikrofon",
+    "Micrófono"
+  ],
+  "System default": [
+    "ברירת המחדל של המערכת",
+    "Systemstandard",
+    "Predeterminado del sistema"
+  ],
+  "Saved microphone": [
+    "מיקרופון שמור",
+    "Gespeichertes Mikrofon",
+    "Micrófono guardado"
+  ],
+  "Quiet input": [
+    "קלט חלש",
+    "Leiser Eingang",
+    "Entrada débil"
+  ],
+  "Stop check": [
+    "עצירת הבדיקה",
+    "Prüfung stoppen",
+    "Detener comprobación"
+  ],
+  "Check microphone": [
+    "בדיקת מיקרופון",
+    "Mikrofon prüfen",
+    "Comprobar micrófono"
+  ],
+  "Test input level": [
+    "עוצמת קלט בבדיקה",
+    "Test-Eingangspegel",
+    "Nivel de entrada de prueba"
+  ],
+  "Listening on": [
+    "מקשיב באמצעות",
+    "Aufnahme mit",
+    "Escuchando con"
+  ],
+  "Open StageCue file": [
+    "פתיחת קובץ StageCue",
+    "StageCue-Datei öffnen",
+    "Abrir archivo StageCue"
+  ],
+  "Export StageCue file": [
+    "ייצוא קובץ StageCue",
+    "StageCue-Datei exportieren",
+    "Exportar archivo StageCue"
+  ],
+  "Preparing package…": [
+    "מכין חבילה…",
+    "Paket wird vorbereitet…",
+    "Preparando paquete…"
+  ],
+  "Local Hebrew ASR": [
+    "זיהוי עברית מקומי",
+    "Lokale Hebräisch-Erkennung",
+    "Reconocimiento local de hebreo"
+  ],
+  "Browser speech": [
+    "זיהוי דיבור בדפדפן",
+    "Browser-Spracherkennung",
+    "Reconocimiento del navegador"
+  ],
+  "Simulator": [
+    "הדמיה",
+    "Simulator",
+    "Simulador"
+  ],
+  "No button assigned": [
+    "לא הוקצה כפתור",
+    "Keine Taste zugewiesen",
+    "Ningún botón asignado"
+  ],
+  "Keyboard input": [
+    "קלט מקלדת",
+    "Tastatureingabe",
+    "Entrada de teclado"
+  ],
+  "Button": [
+    "כפתור",
+    "Taste",
+    "Botón"
+  ],
+  "Endpoint to media onset · p50": [
+    "מסוף הדיבור עד תחילת הניגון · חציון",
+    "Sprechende bis Wiedergabe · Median",
+    "Fin de voz a reproducción · mediana"
+  ],
+  "Silence": [
+    "שקט",
+    "Stille",
+    "Silencio"
+  ],
+  "ms · Decoder tail": [
+    "מ״ש · סיום הפענוח",
+    "ms · Dekodierung",
+    "ms · Decodificación"
+  ],
+  "ms · Endpoint": [
+    "מ״ש · סוף דיבור",
+    "ms · Sprechende",
+    "ms · Fin de voz"
+  ],
+  "· ASR": [
+    "· זיהוי דיבור",
+    "· Spracherkennung",
+    "· Reconocimiento"
+  ],
+  "· Decision": [
+    "· החלטה",
+    "· Entscheidung",
+    "· Decisión"
+  ],
+  "· Dispatch": [
+    "· שליחה",
+    "· Auslösung",
+    "· Envío"
+  ],
+  "· Onset": [
+    "· תחילת ניגון",
+    "· Beginn",
+    "· Inicio"
+  ],
+  "· line": [
+    "· שורה",
+    "· Zeile",
+    "· línea"
+  ],
+  "· context": [
+    "· הקשר",
+    "· Kontext",
+    "· contexto"
+  ],
+  "· match": [
+    "· התאמה",
+    "· Abgleich",
+    "· coincidencia"
+  ],
+  "ms": [
+    "מ״ש",
+    "ms",
+    "ms"
+  ],
+  "Waiting for a line": [
+    "ממתין לשורה",
+    "Warten auf Text",
+    "Esperando una línea"
+  ],
+  "Waiting for the rest of the turn": [
+    "ממתין להמשך השורה",
+    "Warten auf den restlichen Text",
+    "Esperando el resto de la línea"
+  ],
+  "Listening for the rest of the line": [
+    "מקשיב להמשך השורה",
+    "Hört auf den restlichen Text",
+    "Escuchando el resto de la línea"
+  ],
+  "Waiting for complete line": [
+    "ממתין לשורה שלמה",
+    "Warten auf vollständige Zeile",
+    "Esperando la línea completa"
+  ],
+  "Current line below minimum": [
+    "ניקוד השורה נמוך מהסף",
+    "Zeilenwert unter Minimum",
+    "Puntuación por debajo del mínimo"
+  ],
+  "Below cue threshold": [
+    "מתחת לסף ההתאמה",
+    "Unter der Einsatzschwelle",
+    "Por debajo del umbral"
+  ],
+  "Waiting for line ending": [
+    "ממתין לסוף השורה",
+    "Warten auf das Zeilenende",
+    "Esperando el final de la línea"
+  ],
+  "Ambiguous prefix": [
+    "תחילת השורה אינה חד־משמעית",
+    "Mehrdeutiger Anfang",
+    "Inicio ambiguo"
+  ],
+  "Cooldown": [
+    "השהיה בין רפליקות",
+    "Sperrzeit",
+    "Intervalo de espera"
+  ],
+  "Matched": [
+    "נמצאה התאמה",
+    "Übereinstimmung",
+    "Coincidencia"
+  ],
+  "Rehearsal started": [
+    "החזרה התחילה",
+    "Probe gestartet",
+    "Ensayo iniciado"
+  ],
+  "Rehearsal stopped": [
+    "החזרה נעצרה",
+    "Probe gestoppt",
+    "Ensayo detenido"
+  ],
+  "Resumed": [
+    "החזרה נמשכה",
+    "Fortgesetzt",
+    "Reanudado"
+  ],
+  "Selected": [
+    "נבחרה",
+    "Ausgewählt",
+    "Seleccionado"
+  ],
+  "Replay": [
+    "ניגון חוזר",
+    "Wiederholen",
+    "Repetir"
+  ],
+  "Missing file:": [
+    "חסר קובץ:",
+    "Fehlende Datei:",
+    "Falta el archivo:"
+  ],
+  "StageCue package exceeds 1 GB.": [
+    "גודל החבילה חורג מ־1 ג״ב.",
+    "Das StageCue-Paket überschreitet 1 GB.",
+    "El paquete StageCue supera 1 GB."
+  ],
+  "Invalid or oversized StageCue package.": [
+    "קובץ StageCue אינו תקין או גדול מדי.",
+    "Ungültiges oder zu großes StageCue-Paket.",
+    "Paquete StageCue no válido o demasiado grande."
+  ],
+  "This file is not a StageCue package.": [
+    "זה אינו קובץ StageCue.",
+    "Diese Datei ist kein StageCue-Paket.",
+    "Este archivo no es un paquete StageCue."
+  ],
+  "Unsupported StageCue package version.": [
+    "גרסת קובץ StageCue אינה נתמכת.",
+    "Nicht unterstützte StageCue-Paketversion.",
+    "Versión de paquete StageCue no compatible."
+  ],
+  "Missing SceneMax scene.": [
+    "סצנת SceneMax חסרה.",
+    "SceneMax-Szene fehlt.",
+    "Falta la escena de SceneMax."
+  ],
+  "SceneMax scene does not match the script.": [
+    "סצנת SceneMax אינה תואמת לתסריט.",
+    "SceneMax-Szene passt nicht zum Skript.",
+    "La escena de SceneMax no coincide con el guion."
+  ],
+  "audio": [
+    "שמע",
+    "Audio",
+    "Audio"
+  ],
+  "video": [
+    "וידאו",
+    "Video",
+    "Vídeo"
+  ],
+  "image": [
+    "תמונה",
+    "Bild",
+    "Imagen"
+  ],
+  "play audio": [
+    "השמעת שמע",
+    "Audio abspielen",
+    "Reproducir audio"
+  ],
+  "play video": [
+    "ניגון וידאו",
+    "Video abspielen",
+    "Reproducir vídeo"
+  ],
+  "show image": [
+    "הצגת תמונה",
+    "Bild anzeigen",
+    "Mostrar imagen"
+  ],
+  "wait": [
+    "המתנה",
+    "Warten",
+    "Esperar"
+  ],
+  "emit ws": [
+    "שליחת הודעה",
+    "Nachricht senden",
+    "Enviar mensaje"
+  ],
+  "Local ASR connection timed out.": [
+    "פג הזמן הקצוב לחיבור לזיהוי המקומי.",
+    "Zeitüberschreitung bei der lokalen Spracherkennung.",
+    "Se agotó el tiempo de conexión con el reconocimiento local."
+  ],
+  "Local ASR is offline. Start the service or choose another input.": [
+    "שירות הזיהוי המקומי אינו זמין. הפעילו אותו או בחרו מקור קלט אחר.",
+    "Lokale Spracherkennung offline. Dienst starten oder andere Eingabe wählen.",
+    "El reconocimiento local está desconectado. Inicia el servicio o elige otra entrada."
+  ],
+  "Local ASR disconnected. Restart the rehearsal to reconnect.": [
+    "שירות הזיהוי המקומי התנתק. התחילו את החזרה מחדש כדי להתחבר.",
+    "Lokale Spracherkennung getrennt. Probe neu starten.",
+    "Se desconectó el reconocimiento local. Reinicia el ensayo."
+  ],
+  "Browser speech recognition is unavailable. Choose Local Hebrew ASR or Simulator.": [
+    "זיהוי הדיבור בדפדפן אינו זמין. בחרו בזיהוי עברית מקומי או בהדמיה.",
+    "Browser-Spracherkennung nicht verfügbar. Lokale Erkennung oder Simulator wählen.",
+    "Reconocimiento del navegador no disponible. Elige el reconocimiento local o el simulador."
+  ],
+  "Microphone unavailable. Choose a connected microphone or System default.": [
+    "המיקרופון אינו זמין. בחרו מיקרופון מחובר או את ברירת המחדל של המערכת.",
+    "Mikrofon nicht verfügbar. Angeschlossenes Mikrofon oder Systemstandard wählen.",
+    "Micrófono no disponible. Selecciona uno conectado o el predeterminado."
+  ],
+  "Microphone permission denied. Allow microphone access for Stagecue and enable desktop app access in Windows microphone privacy settings.": [
+    "הגישה למיקרופון נדחתה. אפשרו גישה ל־Stagecue וליישומי מחשב בהגדרות פרטיות המיקרופון של Windows.",
+    "Mikrofonzugriff verweigert. Erlaube Stagecue und Desktop-Apps den Zugriff in den Windows-Datenschutzeinstellungen.",
+    "Permiso de micrófono denegado. Permite el acceso a Stagecue y a las aplicaciones de escritorio en la configuración de privacidad de Windows."
+  ],
+  "Windows could not open the microphone. Check its connection or select another input.": [
+    "ל־Windows אין גישה למיקרופון. בדקו את החיבור או בחרו מקור קלט אחר.",
+    "Windows konnte das Mikrofon nicht öffnen. Verbindung prüfen oder anderen Eingang wählen.",
+    "Windows no pudo abrir el micrófono. Comprueba la conexión o elige otra entrada."
+  ],
+  "Microphone disconnected. Choose an available microphone and restart rehearsal.": [
+    "המיקרופון התנתק. בחרו מיקרופון זמין והתחילו את החזרה מחדש.",
+    "Mikrofon getrennt. Verfügbares Mikrofon wählen und Probe neu starten.",
+    "Micrófono desconectado. Elige uno disponible y reinicia el ensayo."
+  ],
+  "Scene Editor": [
+    "עורך הסצנות",
+    "Szeneneditor",
+    "Editor de escenas"
+  ],
+  "Open Scene file": [
+    "פתיחת קובץ סצנה",
+    "Szenendatei öffnen",
+    "Abrir archivo de escena"
+  ],
+  "Export Scene File": [
+    "ייצוא קובץ סצנה",
+    "Szenendatei exportieren",
+    "Exportar archivo de escena"
+  ],
+  "Scripts in scene": [
+    "תסריטים בסצנה",
+    "Skripte der Szene",
+    "Guiones de la escena"
+  ],
+  "Active scene": [
+    "סצנה פעילה",
+    "Aktuelle Szene",
+    "Escena activa"
+  ],
+  "Scene title": [
+    "שם הסצנה",
+    "Szenentitel",
+    "Título de la escena"
+  ],
+  "New scene": [
+    "סצנה חדשה",
+    "Neue Szene",
+    "Nueva escena"
+  ],
+  "Save scene": [
+    "שמירת הסצנה",
+    "Szene speichern",
+    "Guardar escena"
+  ],
+  "Action type": [
+    "סוג פעולה",
+    "Aktionstyp",
+    "Tipo de acción"
+  ],
+  "Delete action": [
+    "מחיקת פעולה",
+    "Aktion löschen",
+    "Eliminar acción"
+  ],
+  "Add script": [
+    "הוספת תסריט",
+    "Skript hinzufügen",
+    "Añadir guion"
+  ],
+  "Untitled script": [
+    "תסריט ללא שם",
+    "Unbenanntes Skript",
+    "Guion sin título"
+  ],
+  "Duplicate script": [
+    "שכפול תסריט",
+    "Skript duplizieren",
+    "Duplicar guion"
+  ],
+  "SceneMax attachment for this script": [
+    "סצנת SceneMax לתסריט זה",
+    "SceneMax-Anhang für dieses Skript",
+    "Escena SceneMax para este guion"
+  ],
+  "Cue actions": [
+    "פעולות ברפליקה",
+    "Einsatzaktionen",
+    "Acciones de la intervención"
+  ],
+  "Scene general settings": [
+    "הגדרות כלליות לסצנה",
+    "Allgemeine Szeneneinstellungen",
+    "Ajustes generales de la escena"
+  ],
+  "Configure SceneMax connection": [
+    "הגדרת חיבור ל־SceneMax",
+    "SceneMax-Verbindung einrichten",
+    "Configurar conexión de SceneMax"
+  ],
+  "Move action up": [
+    "הזזת הפעולה למעלה",
+    "Aktion nach oben verschieben",
+    "Subir acción"
+  ],
+  "Move action down": [
+    "הזזת הפעולה למטה",
+    "Aktion nach unten verschieben",
+    "Bajar acción"
+  ],
+  "Alternative phrasings": [
+    "ניסוחים חלופיים",
+    "Alternative Formulierungen",
+    "Formulaciones alternativas"
+  ],
+  "Alternative phrasing": [
+    "ניסוח חלופי",
+    "Alternative Formulierung",
+    "Formulación alternativa"
+  ],
+  "Remove phrasing": [
+    "הסרת ניסוח",
+    "Formulierung entfernen",
+    "Eliminar formulación"
+  ],
+  "Add phrasing": [
+    "הוספת ניסוח",
+    "Formulierung hinzufügen",
+    "Añadir formulación"
+  ],
+  "Play audio": [
+    "השמעת שמע",
+    "Audio abspielen",
+    "Reproducir audio"
+  ],
+  "Play video": [
+    "הפעלת סרטון",
+    "Video abspielen",
+    "Reproducir vídeo"
+  ],
+  "Show image": [
+    "הצגת תמונה",
+    "Bild anzeigen",
+    "Mostrar imagen"
+  ],
+  "Wait": [
+    "המתנה",
+    "Warten",
+    "Esperar"
+  ],
+  "Wait (seconds)": [
+    "זמן המתנה (שניות)",
+    "Wartezeit (Sekunden)",
+    "Espera (segundos)"
+  ],
+  "Media file": [
+    "קובץ מדיה",
+    "Mediendatei",
+    "Archivo multimedia"
+  ],
+  "Choose from library": [
+    "בחירה מהספרייה",
+    "Aus Bibliothek wählen",
+    "Elegir de la biblioteca"
+  ],
+  "Browse files…": [
+    "בחירת קובץ…",
+    "Datei auswählen…",
+    "Buscar archivo…"
+  ],
+  "Minimize window": [
+    "מזעור החלון",
+    "Fenster minimieren",
+    "Minimizar ventana"
+  ],
+  "Maximize window": [
+    "הגדלת החלון",
+    "Fenster maximieren",
+    "Maximizar ventana"
+  ],
+  "Restore window": [
+    "שחזור גודל החלון",
+    "Fenstergröße wiederherstellen",
+    "Restaurar ventana"
+  ],
+  "Close window": [
+    "סגירת החלון",
+    "Fenster schließen",
+    "Cerrar ventana"
+  ],
+  "text to speech": [
+    "טקסט לדיבור",
+    "Text zu Sprache",
+    "Texto a voz"
+  ],
+  "Text to speech": [
+    "טקסט לדיבור",
+    "Text zu Sprache",
+    "Texto a voz"
+  ],
+  "Spoken text": [
+    "הטקסט להקראה",
+    "Sprechtext",
+    "Texto para leer"
+  ],
+  "Voice": [
+    "קול",
+    "Stimme",
+    "Voz"
+  ],
+  "Noa · Hebrew": [
+    "נועה · עברית",
+    "Noa · Hebräisch",
+    "Noa · Hebreo"
+  ],
+  "Asaf · Windows Hebrew": [
+    "אסף · עברית של Windows",
+    "Asaf · Windows Hebräisch",
+    "Asaf · Hebreo de Windows"
+  ],
+  "Generate speech": [
+    "יצירת דיבור",
+    "Sprache erzeugen",
+    "Generar voz"
+  ],
+  "Generating speech…": [
+    "יוצר דיבור…",
+    "Sprache wird erzeugt…",
+    "Generando voz…"
+  ],
+  "Speech ready": [
+    "הדיבור מוכן",
+    "Sprache bereit",
+    "Voz lista"
+  ],
+  "Omer · bundled Hebrew": [
+    "עומר · עברית מובנית",
+    "Omer · Hebräisch (mitgeliefert)",
+    "Omer · hebreo incluido"
+  ],
+  "Speaking speed": [
+    "מהירות דיבור",
+    "Sprechtempo",
+    "Velocidad del habla"
+  ],
+  "Pitch (semitones)": [
+    "גובה הצליל (חצאי טונים)",
+    "Tonhöhe (Halbtöne)",
+    "Tono (semitonos)"
+  ]
+}

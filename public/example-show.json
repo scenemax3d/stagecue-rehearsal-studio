@@ -1,0 +1,121 @@
+{
+  "schemaVersion": "1.0",
+  "showId": "before-the-curtain",
+  "title": "Before the curtain",
+  "language": "he-IL",
+  "version": "1.0",
+  "startStateId": "cue-1",
+  "recognition": {
+    "provider": "local-hebrew-asr",
+    "windowSize": 3,
+    "maxHistoryAgeMs": 30000,
+    "currentLineWeight": 0.7,
+    "historyWeight": 0.3,
+    "matchThreshold": 0.82,
+    "minCurrentLineScore": 0.65,
+    "requireTerminalEvidence": true,
+    "endpointSilenceMs": 400,
+    "gateMicDuringPlayback": true
+  },
+  "assets": [
+    {
+      "id": "ari-1",
+      "type": "audio",
+      "uri": "assets/ari-1.wav"
+    },
+    {
+      "id": "ari-2",
+      "type": "audio",
+      "uri": "assets/ari-2.wav"
+    },
+    {
+      "id": "ari-3",
+      "type": "audio",
+      "uri": "assets/ari-3.wav"
+    },
+    {
+      "id": "ari-4",
+      "type": "audio",
+      "uri": "assets/ari-4.wav"
+    },
+    {
+      "id": "ari-5",
+      "type": "audio",
+      "uri": "assets/ari-5.wav"
+    }
+  ],
+  "states": [
+    {
+      "id": "cue-1",
+      "kind": "human_line",
+      "actor": "השחקן",
+      "expectedText": "שלום ארי",
+      "alternatives": [
+        "היי ארי"
+      ],
+      "actions": [
+        {
+          "type": "play_audio",
+          "assetId": "ari-1"
+        }
+      ],
+      "nextStateId": "cue-2"
+    },
+    {
+      "id": "cue-2",
+      "kind": "human_line",
+      "actor": "השחקן",
+      "expectedText": "יש לך רגע לדבר?",
+      "alternatives": [],
+      "actions": [
+        {
+          "type": "play_audio",
+          "assetId": "ari-2"
+        }
+      ],
+      "nextStateId": "cue-3"
+    },
+    {
+      "id": "cue-3",
+      "kind": "human_line",
+      "actor": "השחקן",
+      "expectedText": "אני קצת מפחד לעלות לבמה.",
+      "alternatives": [],
+      "actions": [
+        {
+          "type": "play_audio",
+          "assetId": "ari-3"
+        }
+      ],
+      "nextStateId": "cue-4"
+    },
+    {
+      "id": "cue-4",
+      "kind": "human_line",
+      "actor": "השחקן",
+      "expectedText": "תישאר איתי עד שהאור יעלה?",
+      "alternatives": [],
+      "actions": [
+        {
+          "type": "play_audio",
+          "assetId": "ari-4"
+        }
+      ],
+      "nextStateId": "cue-5"
+    },
+    {
+      "id": "cue-5",
+      "kind": "human_line",
+      "actor": "השחקן",
+      "expectedText": "אני מוכן. אפשר להתחיל.",
+      "alternatives": [],
+      "actions": [
+        {
+          "type": "play_audio",
+          "assetId": "ari-5"
+        }
+      ],
+      "nextStateId": null
+    }
+  ]
+}

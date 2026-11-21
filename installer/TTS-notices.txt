@@ -1,0 +1,16 @@
+Noa Hebrew medium voice (speaker 0) by thewh1teagle
+https://huggingface.co/thewh1teagle/piper-he-noa
+Renikud pronunciation model and Python inference by the Renikud project
+https://huggingface.co/renikud/renikud
+https://github.com/thewh1teagle/renikud
+Models distributed unmodified under CC BY 4.0: https://creativecommons.org/licenses/by/4.0/
+Piper inference sources, version 1.8.0, The Home Assistant Authors
+https://github.com/OHF-Voice/piper1-gpl
+GPL-3.0-or-later. See Piper-COPYING.txt. The installed Python files contain the inference source.
+Windows Asaf is provided by the optional Windows Hebrew speech component.
+
+Omer speaker and Hebrew IPA adapter from thewh1teagle/pocket-tts-onnx, based on Kyutai Pocket TTS.
+https://huggingface.co/thewh1teagle/pocket-tts-onnx
+https://github.com/thewh1teagle/pocket-tts-onnx
+ONNX model and runtime source distributed under CC BY 4.0. See Pocket-TTS-ONNX-LICENSE.txt.
+SentencePiece by Google is licensed under Apache 2.0: https://github.com/google/sentencepiece

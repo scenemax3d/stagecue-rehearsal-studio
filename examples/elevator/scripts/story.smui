@@ -1,0 +1,22 @@
+{
+  "name": "story",
+  "canvasWidth": 900,
+  "canvasHeight": 600,
+  "layers": [
+    {
+      "name": "stage",
+      "widgets": [
+        {
+          "name": "picture",
+          "type": "IMAGE",
+          "width": 900,
+          "height": 600,
+          "widthMode": "FIXED",
+          "heightMode": "FIXED",
+          "imagePath": "sprites/meeting.jpg",
+          "imageScaleMode": "stretch"
+        }
+      ]
+    }
+  ]
+}

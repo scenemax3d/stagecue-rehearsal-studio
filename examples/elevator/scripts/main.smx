@@ -1,0 +1,189 @@
+camera.pos(0,0,9)
+camera.rotate(0,180,0)
+wall => box: size (25,15,0.18), pos (0,0,-0.8)
+wall.material = "plaster"
+walljoint0 => box: size (0.015,10,0.03), pos (-13.5,-0.2,-0.66)
+walljoint0.material = "tile"
+walljoint1 => box: size (0.015,10,0.03), pos (-10.8,-0.2,-0.66)
+walljoint1.material = "tile"
+walljoint2 => box: size (0.015,10,0.03), pos (-8.100000000000001,-0.2,-0.66)
+walljoint2.material = "tile"
+walljoint3 => box: size (0.015,10,0.03), pos (-5.4,-0.2,-0.66)
+walljoint3.material = "tile"
+walljoint4 => box: size (0.015,10,0.03), pos (-2.7,-0.2,-0.66)
+walljoint4.material = "tile"
+walljoint5 => box: size (0.015,10,0.03), pos (0.0,-0.2,-0.66)
+walljoint5.material = "tile"
+walljoint6 => box: size (0.015,10,0.03), pos (2.7,-0.2,-0.66)
+walljoint6.material = "tile"
+walljoint7 => box: size (0.015,10,0.03), pos (5.4,-0.2,-0.66)
+walljoint7.material = "tile"
+walljoint8 => box: size (0.015,10,0.03), pos (8.100000000000001,-0.2,-0.66)
+walljoint8.material = "tile"
+walljoint9 => box: size (0.015,10,0.03), pos (10.8,-0.2,-0.66)
+walljoint9.material = "tile"
+walljoint10 => box: size (0.015,10,0.03), pos (13.5,-0.2,-0.66)
+walljoint10.material = "tile"
+course0 => box: size (22,0.012,0.03), pos (0,-1.8,-0.65)
+course0.material = "tile"
+course1 => box: size (22,0.012,0.03), pos (0,-0.5,-0.65)
+course1.material = "tile"
+course2 => box: size (22,0.012,0.03), pos (0,0.8,-0.65)
+course2.material = "tile"
+course3 => box: size (22,0.012,0.03), pos (0,2.1000000000000005,-0.65)
+course3.material = "tile"
+surround => box: size (4.95,5.4,0.25), pos (0,-0.12,-0.4)
+surround.material = "bronze"
+lintel => box: size (5.12,0.13,0.2), pos (0,2.56,-0.24)
+lintel.material = "brass"
+recess => box: size (4.56,5.07,0.1), pos (0,-0.19,-0.2)
+recess.material = "shadow"
+cabin => box: size (4.05,4.65,0.1), pos (0,0,0)
+cabin.material = "shadow"
+leaf0 => box: size (1.99,4.61,0.09), pos (-1.005,0,0.09)
+leaf0.material = "steel"
+leaf0.attach to cabin: pos (-1.005,0,0.09)
+flute00 => box: size (0.033,4.48,0.014), pos (-1.1349999999999998,0,0.15)
+flute00.material = "patina"
+flute00.attach to cabin: pos (-1.1349999999999998,0,0.15)
+flute01 => box: size (0.033,4.48,0.014), pos (-1.005,0,0.15)
+flute01.material = "patina"
+flute01.attach to cabin: pos (-1.005,0,0.15)
+flute02 => box: size (0.033,4.48,0.014), pos (-0.8749999999999999,0,0.15)
+flute02.material = "patina"
+flute02.attach to cabin: pos (-0.8749999999999999,0,0.15)
+trim0 => box: size (1.94,0.035,0.02), pos (-1.005,1.72,0.16)
+trim0.material = "brass"
+trim0.attach to cabin: pos (-1.005,1.72,0.16)
+leaf1 => box: size (1.99,4.61,0.09), pos (1.005,0,0.09)
+leaf1.material = "steel"
+leaf1.attach to cabin: pos (1.005,0,0.09)
+flute10 => box: size (0.033,4.48,0.014), pos (0.8749999999999999,0,0.15)
+flute10.material = "patina"
+flute10.attach to cabin: pos (0.8749999999999999,0,0.15)
+flute11 => box: size (0.033,4.48,0.014), pos (1.005,0,0.15)
+flute11.material = "patina"
+flute11.attach to cabin: pos (1.005,0,0.15)
+flute12 => box: size (0.033,4.48,0.014), pos (1.1349999999999998,0,0.15)
+flute12.material = "patina"
+flute12.attach to cabin: pos (1.1349999999999998,0,0.15)
+trim1 => box: size (1.94,0.035,0.02), pos (1.005,1.72,0.16)
+trim1.material = "brass"
+trim1.attach to cabin: pos (1.005,1.72,0.16)
+threshold => box: size (5.12,0.14,0.28), pos (0,-2.68,-0.04)
+threshold.material = "brass"
+indicator => box: size (1.05,0.48,0.17), pos (0,2.93,-0.45)
+indicator.material = "shadow"
+digittop => box: size (0.17,0.034,0.04), pos (0,3.063,-0.32)
+digittop.material = "glow"
+digitleft => box: size (0.034,0.13,0.04), pos (-0.085,3.0,-0.32)
+digitleft.material = "glow"
+digitmid => box: size (0.17,0.034,0.04), pos (0,2.93,-0.32)
+digitmid.material = "glow"
+digitright => box: size (0.034,0.13,0.04), pos (0.085,2.86,-0.32)
+digitright.material = "glow"
+digitlow => box: size (0.17,0.034,0.04), pos (0,2.8,-0.32)
+digitlow.material = "glow"
+callplate => box: size (0.5,0.96,0.16), pos (3.03,-0.36,-0.49)
+callplate.material = "bronze"
+callrim => box: size (0.25,0.25,0.08), pos (3.03,-0.35,-0.36)
+callrim.material = "brass"
+callbutton => box: size (0.16,0.16,0.04), pos (3.03,-0.35,-0.3)
+callbutton.material = "glow"
+UI.Load "story"
+var shot = 1
+network.on ("picture_meeting", msg) = do
+ shot = 1
+ UI.story.stage.picture.image = "sprites/meeting.jpg"
+ Logger.info "PICTURE_MEETING"
+end do
+network.on ("picture_lift", msg) = do
+ shot = 2
+ UI.story.stage.picture.image = "sprites/lift.jpg"
+ Logger.info "PICTURE_LIFT"
+end do
+network.on ("picture_cabin", msg) = do
+ shot = 3
+ UI.story.stage.picture.image = "sprites/cabin.jpg"
+ Logger.info "PICTURE_CABIN"
+end do
+network.on ("picture_evidence", msg) = do
+ shot = 4
+ UI.story.stage.picture.image = "sprites/evidence.jpg"
+ Logger.info "PICTURE_EVIDENCE"
+end do
+network.on ("picture_clue", msg) = do
+ shot = 5
+ UI.story.stage.picture.image = "sprites/clue.jpg"
+ Logger.info "PICTURE_CLUE"
+end do
+network.on ("picture_iris", msg) = do
+ shot = 6
+ UI.story.stage.picture.image = "sprites/iris.jpg"
+ Logger.info "PICTURE_IRIS"
+end do
+network.on ("picture_ray", msg) = do
+ shot = 7
+ UI.story.stage.picture.image = "sprites/rayapproach.jpg"
+ Logger.info "PICTURE_RAY"
+ wait 0.35 seconds
+ if (shot == 7) {
+  UI.story.stage.picture.image = "sprites/ray.jpg"
+ }
+end do
+var shaking = 0
+network.on ("elevator_shake", msg) = do
+ if (shaking == 0) {
+  shaking = 1
+  Logger.info "ELEVATOR_SHAKE_START"
+  if (shot == 2) {
+   UI.story.stage.picture.image = "sprites/rattleright.jpg"
+  }
+  cabin.move (x+0.20) in 0.1 seconds
+  Logger.info cabin.x
+  if (shot == 2) {
+   UI.story.stage.picture.image = "sprites/rattleleft.jpg"
+  }
+  cabin.move (x-0.41) in 0.13 seconds
+  if (shot == 2) {
+   UI.story.stage.picture.image = "sprites/rattleright.jpg"
+  }
+  cabin.move (x+0.37) in 0.12 seconds
+  if (shot == 2) {
+   UI.story.stage.picture.image = "sprites/rattleleft.jpg"
+  }
+  cabin.move (x-0.34) in 0.12 seconds
+  if (shot == 2) {
+   UI.story.stage.picture.image = "sprites/rattleright.jpg"
+  }
+  cabin.move (x+0.40) in 0.13 seconds
+  if (shot == 2) {
+   UI.story.stage.picture.image = "sprites/rattleleft.jpg"
+  }
+  cabin.move (x-0.42) in 0.13 seconds
+  if (shot == 2) {
+   UI.story.stage.picture.image = "sprites/rattleright.jpg"
+  }
+  cabin.move (x+0.35) in 0.12 seconds
+  if (shot == 2) {
+   UI.story.stage.picture.image = "sprites/rattleleft.jpg"
+  }
+  cabin.move (x-0.26) in 0.13 seconds
+  if (shot == 2) {
+   UI.story.stage.picture.image = "sprites/rattleright.jpg"
+  }
+  cabin.move (x+0.18) in 0.12 seconds
+  if (shot == 2) {
+   UI.story.stage.picture.image = "sprites/rattleleft.jpg"
+  }
+  cabin.move (x-0.07) in 0.14 seconds
+  if (shot == 2) {
+   UI.story.stage.picture.image = "sprites/lift.jpg"
+  }
+  cabin.pos(0,0,0)
+  Logger.info "ELEVATOR_SHAKE_END"
+  shaking = 0
+ }
+end do
+wait for network.ready == 1
+Logger.info "ELEVATOR_READY"

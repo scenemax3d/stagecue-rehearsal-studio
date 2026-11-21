@@ -1,0 +1,425 @@
+{
+  "schemaVersion": "1.0",
+  "showId": "gaon-iris-gaon",
+  "title": "גאון ואיריס — בתפקיד גאון",
+  "language": "he-IL",
+  "version": "1.0",
+  "startStateId": "turn-01",
+  "recognition": {
+    "provider": "local-hebrew-asr",
+    "windowSize": 1,
+    "maxHistoryAgeMs": 30000,
+    "currentLineWeight": 0.7,
+    "historyWeight": 0.3,
+    "matchThreshold": 0.82,
+    "minCurrentLineScore": 0.65,
+    "requireTerminalEvidence": true,
+    "endpointSilenceMs": 400,
+    "gateMicDuringPlayback": true
+  },
+  "assets": [
+    {
+      "id": "turn-02",
+      "type": "audio",
+      "uri": "assets/gaon-iris/turn-02.wav"
+    },
+    {
+      "id": "turn-04",
+      "type": "audio",
+      "uri": "assets/gaon-iris/turn-04.wav"
+    },
+    {
+      "id": "turn-06",
+      "type": "audio",
+      "uri": "assets/gaon-iris/turn-06.wav"
+    },
+    {
+      "id": "turn-08",
+      "type": "audio",
+      "uri": "assets/gaon-iris/turn-08.wav"
+    },
+    {
+      "id": "turn-10",
+      "type": "audio",
+      "uri": "assets/gaon-iris/turn-10.wav"
+    },
+    {
+      "id": "turn-12",
+      "type": "audio",
+      "uri": "assets/gaon-iris/turn-12.wav"
+    },
+    {
+      "id": "turn-14",
+      "type": "audio",
+      "uri": "assets/gaon-iris/turn-14.wav"
+    },
+    {
+      "id": "turn-16",
+      "type": "audio",
+      "uri": "assets/gaon-iris/turn-16.wav"
+    },
+    {
+      "id": "turn-18",
+      "type": "audio",
+      "uri": "assets/gaon-iris/turn-18.wav"
+    },
+    {
+      "id": "turn-20",
+      "type": "audio",
+      "uri": "assets/gaon-iris/turn-20.wav"
+    },
+    {
+      "id": "turn-22",
+      "type": "audio",
+      "uri": "assets/gaon-iris/turn-22.wav"
+    },
+    {
+      "id": "turn-24",
+      "type": "audio",
+      "uri": "assets/gaon-iris/turn-24.wav"
+    },
+    {
+      "id": "turn-26",
+      "type": "audio",
+      "uri": "assets/gaon-iris/turn-26.wav"
+    },
+    {
+      "id": "turn-28",
+      "type": "audio",
+      "uri": "assets/gaon-iris/turn-28.wav"
+    }
+  ],
+  "states": [
+    {
+      "id": "turn-01",
+      "actor": "גאון",
+      "expectedText": "שלום איריס",
+      "scriptedTurn": true,
+      "kind": "human_line",
+      "actions": [],
+      "nextStateId": "turn-02"
+    },
+    {
+      "id": "turn-02",
+      "actor": "איריס",
+      "expectedText": "הי גאון מה קורה? (חולפת במהירות על פניו, לא ממש רוצה לדבר איתו)",
+      "scriptedTurn": true,
+      "kind": "virtual_line",
+      "actions": [
+        {
+          "type": "play_audio",
+          "assetId": "turn-02"
+        }
+      ],
+      "nextStateId": "turn-03"
+    },
+    {
+      "id": "turn-03",
+      "actor": "גאון",
+      "expectedText": "הכל טוב, יש לך דקה?",
+      "scriptedTurn": true,
+      "kind": "human_line",
+      "actions": [],
+      "nextStateId": "turn-04"
+    },
+    {
+      "id": "turn-04",
+      "actor": "איריס",
+      "expectedText": "וואי אני מה זה מאחרת לעבודה. משהו דחוף?",
+      "scriptedTurn": true,
+      "kind": "virtual_line",
+      "actions": [
+        {
+          "type": "play_audio",
+          "assetId": "turn-04"
+        }
+      ],
+      "nextStateId": "turn-05"
+    },
+    {
+      "id": "turn-05",
+      "actor": "גאון",
+      "expectedText": "לא, לא קריטי. זה קשור למעלית אבל זה יכול לחכות",
+      "scriptedTurn": true,
+      "kind": "human_line",
+      "actions": [],
+      "nextStateId": "turn-06"
+    },
+    {
+      "id": "turn-06",
+      "actor": "איריס",
+      "expectedText": "מעליות?? הווו זה חשוב!! חייבים לעשות עם זה משהו זה בלתי נסבל המצב הזה!\nאמרתי לזקן שכדאי שיתחיל להזיז את התחת ויטפל בזה לפני שיהיה פה אסון!\nהיא רועדת",
+      "scriptedTurn": true,
+      "kind": "virtual_line",
+      "actions": [
+        {
+          "type": "play_audio",
+          "assetId": "turn-06"
+        }
+      ],
+      "nextStateId": "turn-07"
+    },
+    {
+      "id": "turn-07",
+      "actor": "גאון",
+      "expectedText": "וחורקת",
+      "scriptedTurn": true,
+      "kind": "human_line",
+      "actions": [],
+      "nextStateId": "turn-08"
+    },
+    {
+      "id": "turn-08",
+      "actor": "איריס",
+      "expectedText": "והמאוורר לא עובד והכי גרוע - היא נתקעת!\nאתה יודע מה זה להתקע במעלית בלי אוויר??",
+      "scriptedTurn": true,
+      "kind": "virtual_line",
+      "actions": [
+        {
+          "type": "play_audio",
+          "assetId": "turn-08"
+        }
+      ],
+      "nextStateId": "turn-09"
+    },
+    {
+      "id": "turn-09",
+      "actor": "גאון",
+      "expectedText": "בטח מחניק, שלא לומר... מסריח... רק אתמול צילמתי שוב פעם שלולית צהובה באמצע המעלית",
+      "scriptedTurn": true,
+      "kind": "human_line",
+      "actions": [],
+      "nextStateId": "turn-10"
+    },
+    {
+      "id": "turn-10",
+      "actor": "איריס",
+      "expectedText": "איזה דיירים מגעילים. בטח נזלה למישהו השקית זבל",
+      "scriptedTurn": true,
+      "kind": "virtual_line",
+      "actions": [
+        {
+          "type": "play_audio",
+          "assetId": "turn-10"
+        }
+      ],
+      "nextStateId": "turn-11"
+    },
+    {
+      "id": "turn-11",
+      "actor": "גאון",
+      "expectedText": "זבל זה טיפות, לא שלולית צהובה (מסתכל אליה במבט נוקב - מאשים)\n[שתיקה]\n(שולף את הטלפון בתנועה דרמטית, מציג בפניה צילום של השלולית) תסתכלי טוב. מה את רואה כאן?",
+      "scriptedTurn": true,
+      "kind": "human_line",
+      "actions": [],
+      "nextStateId": "turn-12"
+    },
+    {
+      "id": "turn-12",
+      "actor": "איריס",
+      "expectedText": "(בחוסר סבלנות) מה אתה מראה לי? זה פיפי!",
+      "scriptedTurn": true,
+      "kind": "virtual_line",
+      "actions": [
+        {
+          "type": "play_audio",
+          "assetId": "turn-12"
+        }
+      ],
+      "nextStateId": "turn-13"
+    },
+    {
+      "id": "turn-13",
+      "actor": "גאון",
+      "expectedText": "(מחייך בשביעות רצון, מהנהן לאט) יפה. אז אנחנו מסכימים על הממצא.",
+      "scriptedTurn": true,
+      "kind": "human_line",
+      "actions": [],
+      "nextStateId": "turn-14"
+    },
+    {
+      "id": "turn-14",
+      "actor": "איריס",
+      "expectedText": "(מסתכלת עליו בתדהמה) תגיד, גאון, אתה מצלם את כל השלוליות בבניין?",
+      "scriptedTurn": true,
+      "kind": "virtual_line",
+      "actions": [
+        {
+          "type": "play_audio",
+          "assetId": "turn-14"
+        }
+      ],
+      "nextStateId": "turn-15"
+    },
+    {
+      "id": "turn-15",
+      "actor": "גאון",
+      "expectedText": "(בגאווה) רק את החשודות.",
+      "scriptedTurn": true,
+      "kind": "human_line",
+      "actions": [],
+      "nextStateId": "turn-16"
+    },
+    {
+      "id": "turn-16",
+      "actor": "איריס",
+      "expectedText": "[מרגישה שהוא מאשים אותה] טוב תקשיב אני ממש מאחרת. נהיה בקשר, טוב? (מתרחקת במהירות)",
+      "scriptedTurn": true,
+      "kind": "virtual_line",
+      "actions": [
+        {
+          "type": "play_audio",
+          "assetId": "turn-16"
+        }
+      ],
+      "nextStateId": "turn-17"
+    },
+    {
+      "id": "turn-17",
+      "actor": "גאון",
+      "expectedText": "(הולך לקראתה) [צועק] זאת לא בושה איריס! לא בושה. אפשר לשים חיתול (מצביע לכיוון ריי שנמצא בין הרגליים שלה). יש פתרונות.",
+      "scriptedTurn": true,
+      "kind": "human_line",
+      "actions": [],
+      "nextStateId": "turn-18"
+    },
+    {
+      "id": "turn-18",
+      "actor": "איריס",
+      "expectedText": "(הולכת לקראתו) [צווחת] תגיד לי אתה אמיתי? תשים אתה חיתול. מי אתה בכלל שיוצא בהאשמות כאלה?",
+      "scriptedTurn": true,
+      "kind": "virtual_line",
+      "actions": [
+        {
+          "type": "play_audio",
+          "assetId": "turn-18"
+        }
+      ],
+      "nextStateId": "turn-19"
+    },
+    {
+      "id": "turn-19",
+      "actor": "גאון",
+      "expectedText": "זה לא האשמות, אלה עובדות",
+      "scriptedTurn": true,
+      "kind": "human_line",
+      "actions": [],
+      "nextStateId": "turn-20"
+    },
+    {
+      "id": "turn-20",
+      "actor": "איריס",
+      "expectedText": "תקשיב עוד מילה ואני מתקשרת למשטרה להגיש נגדך תלונה - יא סוטה",
+      "scriptedTurn": true,
+      "kind": "virtual_line",
+      "actions": [
+        {
+          "type": "play_audio",
+          "assetId": "turn-20"
+        }
+      ],
+      "nextStateId": "turn-21"
+    },
+    {
+      "id": "turn-21",
+      "actor": "גאון",
+      "expectedText": "הם לא יענו לך. הם כבר בדרך.",
+      "scriptedTurn": true,
+      "kind": "human_line",
+      "actions": [],
+      "nextStateId": "turn-22"
+    },
+    {
+      "id": "turn-22",
+      "actor": "איריס",
+      "expectedText": "[צועקת] מי בדרך? המשטרה?",
+      "scriptedTurn": true,
+      "kind": "virtual_line",
+      "actions": [
+        {
+          "type": "play_audio",
+          "assetId": "turn-22"
+        }
+      ],
+      "nextStateId": "turn-23"
+    },
+    {
+      "id": "turn-23",
+      "actor": "גאון",
+      "expectedText": "[בקול נמוך] כן. זה הסוף איריס.",
+      "scriptedTurn": true,
+      "kind": "human_line",
+      "actions": [],
+      "nextStateId": "turn-24"
+    },
+    {
+      "id": "turn-24",
+      "actor": "איריס",
+      "expectedText": "הסוף של מה?",
+      "scriptedTurn": true,
+      "kind": "virtual_line",
+      "actions": [
+        {
+          "type": "play_audio",
+          "assetId": "turn-24"
+        }
+      ],
+      "nextStateId": "turn-25"
+    },
+    {
+      "id": "turn-25",
+      "actor": "גאון",
+      "expectedText": "את יודעת טוב מאוד על מה אני מדבר",
+      "scriptedTurn": true,
+      "kind": "human_line",
+      "actions": [],
+      "nextStateId": "turn-26"
+    },
+    {
+      "id": "turn-26",
+      "actor": "איריס",
+      "expectedText": "אתה חושב שהמשטרה תעצור אותי בגלל פיפי במעלית?",
+      "scriptedTurn": true,
+      "kind": "virtual_line",
+      "actions": [
+        {
+          "type": "play_audio",
+          "assetId": "turn-26"
+        }
+      ],
+      "nextStateId": "turn-27"
+    },
+    {
+      "id": "turn-27",
+      "actor": "גאון",
+      "expectedText": "אותך? מה פתאום אותך? אותו הם יעצרו (מצביע על ריי)",
+      "scriptedTurn": true,
+      "kind": "human_line",
+      "actions": [],
+      "nextStateId": "turn-28"
+    },
+    {
+      "id": "turn-28",
+      "actor": "איריס",
+      "expectedText": "אתה הזמנת משטרה לכלב שלי?",
+      "scriptedTurn": true,
+      "kind": "virtual_line",
+      "actions": [
+        {
+          "type": "play_audio",
+          "assetId": "turn-28"
+        }
+      ],
+      "nextStateId": "turn-29"
+    },
+    {
+      "id": "turn-29",
+      "actor": "גאון",
+      "expectedText": "הגשתי נגדו תלונה!",
+      "scriptedTurn": true,
+      "kind": "human_line",
+      "actions": [],
+      "nextStateId": null
+    }
+  ]
+}
