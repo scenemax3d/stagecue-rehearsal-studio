@@ -23,6 +23,16 @@ class StudioFiles(SimpleHTTPRequestHandler):
         else:
             super().do_GET()
 
+    def entry_page(self):
+        return self.path.split("?", 1)[0] in ("/", "/index.html", "/interface-default.js")
+
+    def send_head(self):
+        # Both editions use this origin. An old edition's modification date
+        # cannot validate the current edition's entry page.
+        if self.entry_page():
+            del self.headers["If-Modified-Since"]
+        return super().send_head()
+
     def do_POST(self):
         if self.path != "/api/speech":
             self.send_error(404)
@@ -65,6 +75,8 @@ class StudioFiles(SimpleHTTPRequestHandler):
     def list_directory(self,path):
         self.send_error(404)
     def end_headers(self):
+        if self.entry_page():
+            self.send_header("Cache-Control", "no-store")
         self.send_header("X-Content-Type-Options","nosniff")
         super().end_headers()
 

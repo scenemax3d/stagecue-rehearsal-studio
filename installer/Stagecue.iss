@@ -45,7 +45,13 @@ Source: "..\packaging\payload\*"; DestDir: "{app}"; Flags: ignoreversion recurse
 #endif
 Source: "..\packaging\cache\MicrosoftEdgeWebView2RuntimeInstallerX64.exe"; DestDir: "{tmp}"; Flags: dontcopy nocompression
 [Icons]
+#ifdef HebrewOnly
+Name: "{group}\Stagecue Rehearsal Studio (Hebrew)"; Filename: "{app}\Stagecue.exe"
+[InstallDelete]
+Type: files; Name: "{group}\Stagecue Rehearsal Studio.lnk"
+#else
 Name: "{group}\Stagecue Rehearsal Studio"; Filename: "{app}\Stagecue.exe"
+#endif
 [Run]
 Filename: "{app}\Stagecue.exe"; Description: "Open Stagecue Rehearsal Studio"; Flags: nowait postinstall skipifsilent
 [Code]

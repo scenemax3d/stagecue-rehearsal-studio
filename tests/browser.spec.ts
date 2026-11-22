@@ -7,14 +7,14 @@ test("runs the five prerecorded cues and supports transport", async ({
   await page.goto("/#player");
   await page.getByLabel("Input source").selectOption("mock");
   await page
-    .getByRole("button", { name: "Start rehearsal", exact: true })
+    .locator(".transport").getByRole("button", { name: "Start rehearsal", exact: true })
     .click();
   for (let i = 0; i < 5; i++) {
     await page.getByRole("button", { name: "Simulate", exact: true }).click();
     if (i === 0) {
-      await page.getByRole("button", { name: "Pause rehearsal" }).click();
+      await page.locator(".transport").getByRole("button", { name: "Pause rehearsal" }).click();
       await expect(page.locator(".phase")).toHaveText("Paused");
-      await page.getByRole("button", { name: "Resume", exact: true }).click();
+      await page.locator(".transport").getByRole("button", { name: "Resume", exact: true }).click();
     }
     await expect(page.locator(".phase")).toHaveText(
       i === 4 ? "Scene complete" : "Listening",
@@ -63,7 +63,7 @@ test("microphone denial is visible and recoverable", async ({ page }) => {
   );
   await page.goto("/#player");
   await page
-    .getByRole("button", { name: "Start rehearsal", exact: true })
+    .locator(".transport").getByRole("button", { name: "Start rehearsal", exact: true })
     .click();
   await expect(page.getByRole("alert")).toContainText("denied");
   await expect(page.getByLabel("Input source")).toBeEnabled();
@@ -114,7 +114,7 @@ test("reports a disconnected ASR service and permits retry", async ({
   await page.goto("/#player");
   for (let i = 0; i < 2; i++) {
     await page
-      .getByRole("button", { name: "Start rehearsal", exact: true })
+      .locator(".transport").getByRole("button", { name: "Start rehearsal", exact: true })
       .click();
     await expect(page.getByRole("alert")).toContainText("offline");
   }
@@ -127,7 +127,7 @@ test("jump, replay and emergency stop cancel pending progression", async ({
   await page.goto("/#player");
   await page.getByLabel("Input source").selectOption("mock");
   await page
-    .getByRole("button", { name: "Start rehearsal", exact: true })
+    .locator(".transport").getByRole("button", { name: "Start rehearsal", exact: true })
     .click();
   await page.getByRole("button", { name: "Manually fire current cue" }).click();
   await page.getByTitle("Jump to cue-4", { exact: true }).click();
@@ -160,7 +160,7 @@ test("cue sheet follows automatic progress inside its own scroll container", asy
     });
   await page.getByTitle("Jump to turn-25", { exact: true }).click();
   await page
-    .getByRole("button", { name: "Start rehearsal", exact: true })
+    .locator(".transport").getByRole("button", { name: "Start rehearsal", exact: true })
     .click();
   await page.locator(".sheetlist").evaluate((el) => (el.scrollTop = 0));
   await page.getByRole("button", { name: "Simulate", exact: true }).click();
@@ -245,7 +245,7 @@ test("editor saves parallel YouTube, image and SceneMax actions and player dispa
   await page.getByRole("link", { name: "Rehearsal", exact: true }).click();
   await page.getByLabel("Input source").selectOption("mock");
   await page
-    .getByRole("button", { name: "Start rehearsal", exact: true })
+    .locator(".transport").getByRole("button", { name: "Start rehearsal", exact: true })
     .click();
   await page.getByRole("button", { name: "Simulate", exact: true }).click();
   await expect(page.locator(".stage iframe")).toHaveAttribute(
@@ -280,7 +280,7 @@ test("optional words survive editing and the actor can review word matches after
   await page.getByRole("link", { name: "Rehearsal", exact: true }).click();
   await page.getByLabel("Input source").selectOption("mock");
   await page
-    .getByRole("button", { name: "Start rehearsal", exact: true })
+    .locator(".transport").getByRole("button", { name: "Start rehearsal", exact: true })
     .click();
   const spoken = page.getByLabel("Simulated Hebrew utterance");
   await spoken.fill("אנחנו משהו");
@@ -578,7 +578,7 @@ test("Oliver's timed picture leaves the next actor cue listening", async ({ page
   }, show);
   await page.goto("/#player");
   await page.getByLabel("Input source").selectOption("mock");
-  await page.getByRole("button", { name: "Start rehearsal", exact: true }).click();
+  await page.locator(".transport").getByRole("button", { name: "Start rehearsal", exact: true }).click();
   const simulate = page.getByRole("button", { name: "Simulate", exact: true });
   await simulate.click();
   await expect(page.locator(".counter")).toHaveText("02 / 02", { timeout: 2000 });
@@ -599,20 +599,20 @@ test("a blocking wait counts down, pauses, and clears on advance or stop", async
   }, show);
   await page.goto("/#player");
   await page.getByLabel("Input source").selectOption("mock");
-  const start = page.getByRole("button", { name: "Start rehearsal", exact: true });
+  const start = page.locator(".transport").getByRole("button", { name: "Start rehearsal", exact: true });
   const simulate = page.getByRole("button", { name: "Simulate", exact: true });
   const progress = page.getByRole("progressbar", { name: "Timed wait" });
   await start.click();
   await simulate.click();
   await expect(progress).toBeVisible();
   await expect.poll(() => progress.evaluate(el => (el as HTMLProgressElement).value)).toBeGreaterThan(0);
-  await page.getByRole("button", { name: "Pause rehearsal" }).click();
+  await page.locator(".transport").getByRole("button", { name: "Pause rehearsal" }).click();
   const remaining = page.locator(".cue-countdown span");
   await expect(remaining).toContainText("Paused");
   const frozen = await remaining.innerText();
   await page.waitForTimeout(350);
   await expect(remaining).toHaveText(frozen);
-  await page.getByRole("button", { name: "Resume", exact: true }).click();
+  await page.locator(".transport").getByRole("button", { name: "Resume", exact: true }).click();
   await expect(page.locator(".counter")).toHaveText("02 / 05");
   await expect(progress).toHaveCount(0);
   await page.getByRole("button", { name: "Restart rehearsal" }).click();
@@ -654,13 +654,13 @@ test("home opens a scene and rehearsal keeps setup out of the way", async ({ pag
   await page.goto("/");
   await expect(page.getByRole("heading", {name:"Scene library"})).toBeVisible();
   await expect(page.locator(".monitor")).toHaveCount(0);
-  await page.getByRole("button", {name:/Before the curtain/}).click();
+  await page.getByRole("button", {name:/^Before the curtain/}).click();
   await page.getByLabel("Input source").selectOption("mock");
-  await page.getByRole("button", {name:"Start rehearsal", exact:true}).click();
+  await page.locator(".transport").getByRole("button", {name:"Start rehearsal", exact:true}).click();
   await expect(page.locator(".pagehead")).toBeHidden();
   await expect(page.getByRole("heading", {name:"Session log"})).toBeHidden();
   await expect(page.locator(".cue.current")).toBeVisible();
-  await page.getByRole("button", {name:"Pause rehearsal"}).click();
+  await page.locator(".transport").getByRole("button", {name:"Pause rehearsal"}).click();
   await expect(page.locator(".pagehead")).toBeHidden();
   await page.getByRole("button", {name:"Stop rehearsal"}).click();
   await expect(page.getByLabel("Active scene")).toBeVisible();
@@ -668,4 +668,51 @@ test("home opens a scene and rehearsal keeps setup out of the way", async ({ pag
   await expect(page.getByRole("button", {name:"Open Scene file"})).toBeVisible();
   await page.goto("/");
   await expect(page.getByRole("heading", {name:"Scene library"})).toBeVisible();
+});
+
+test("the elevator preview fills its card throughout rehearsal and resize", async ({ page }) => {
+  await page.route("**/scenemax/index.html", route => route.fulfill({
+    contentType: "text/html",
+    body: '<script>parent.postMessage({type:"stagecue-player",status:"ready"},location.origin)</script>',
+  }));
+  await page.goto("/?show=gaon-iris-gaon-elevator");
+  const monitor = page.locator(".monitor");
+  const preview = page.locator(".stage.embedded");
+  const player = page.locator(".scenemax-frame");
+  async function assertFits() {
+    await expect.poll(async () => {
+      const [card, stage, frame] = await Promise.all([monitor.boundingBox(), preview.boundingBox(), player.boundingBox()]);
+      return !!card && !!stage && !!frame &&
+        Math.abs(card.width - stage.width) <= 2 &&
+        Math.abs(stage.width - frame.width) < 2 &&
+        Math.abs(stage.height - frame.height) < 2;
+    }).toBe(true);
+  }
+  await page.getByLabel("Input source").selectOption("mock");
+  await page.locator(".transport").getByRole("button", {name:"Start rehearsal", exact:true}).click();
+  for (const [width, height] of [[1536, 620], [950, 740], [600, 760]]) {
+    await page.setViewportSize({width,height});
+    await assertFits();
+  }
+  await page.getByRole("button", {name:"Stop rehearsal", exact:true}).click();
+  await assertFits();
+});
+
+test("top rehearsal control stays in view and follows the transport", async ({page}) => {
+  await page.setViewportSize({width:800,height:450});
+  await page.goto("/#player");
+  await page.getByLabel("Input source").selectOption("mock");
+  await page.evaluate(() => window.scrollTo(0,0));
+  const top = page.locator("header");
+  const start = top.getByRole("button",{name:"Start rehearsal",exact:true});
+  await expect(start).toBeInViewport();
+  await start.click();
+  await expect(page.locator(".phase")).toHaveText("Listening");
+  await page.locator(".transport").getByRole("button",{name:"Pause rehearsal"}).click();
+  const resume = top.getByRole("button",{name:"Resume",exact:true});
+  await expect(resume).toBeInViewport();
+  await resume.click();
+  await expect(page.locator(".phase")).toHaveText("Listening");
+  await page.getByLabel("Stop rehearsal").click();
+  await expect(start).toBeInViewport();
 });

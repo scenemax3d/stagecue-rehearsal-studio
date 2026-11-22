@@ -21,6 +21,49 @@ class Studio : Form {
     readonly object logLock = new object();
     IntPtr job;
     bool closing;
+    int startupAttempt;
+    void OpenHome() {
+        startupAttempt++;
+        loading.Text="Opening scene library…";
+        loading.Visible=true;
+        loading.BringToFront();
+        browser.Source=new Uri("http://127.0.0.1:21870/?launch="+Guid.NewGuid().ToString("N"));
+    }
+    async void HomeLoaded(object sender,CoreWebView2NavigationCompletedEventArgs e) {
+        int attempt=startupAttempt;
+        string failure=e.WebErrorStatus.ToString();
+        try {
+            if(e.IsSuccess) {
+                // Navigation can succeed even when a script fails to load and React never mounts.
+                for(int i=0;i<40&&!closing&&attempt==startupAttempt;i++) {
+                    var ready=await browser.CoreWebView2.ExecuteScriptAsync("!!document.querySelector('.scene-library .library-grid')");
+                    if(closing||attempt!=startupAttempt)return;
+                    if(ready=="true") {
+                        browser.NavigationCompleted-=HomeLoaded;
+                        loading.Visible=false;
+                        browser.BringToFront();
+                        return;
+                    }
+                    await Task.Delay(200);
+                }
+                failure="Scene library did not render";
+            }
+        } catch(Exception ex) { failure=ex.Message; }
+        if(closing||attempt!=startupAttempt)return;
+        Log("Startup attempt "+attempt+": "+failure);
+        if(attempt==1)OpenHome();
+        else {
+            loading.Text="Stagecue could not open the scene library. Click here to retry.";
+            loading.Cursor=Cursors.Hand;
+            loading.Click-=RetryHome;
+            loading.Click+=RetryHome;
+        }
+    }
+    void RetryHome(object sender,EventArgs e) {
+        loading.Click-=RetryHome;
+        loading.Cursor=Cursors.Default;
+        OpenHome();
+    }
     [DllImport("kernel32.dll")] static extern IntPtr CreateJobObject(IntPtr attrs,string name);
     [DllImport("kernel32.dll")] static extern bool SetInformationJobObject(IntPtr job,int cls,IntPtr info,uint length);
     [DllImport("kernel32.dll")] static extern bool AssignProcessToJobObject(IntPtr job,IntPtr process);
@@ -71,8 +114,9 @@ class Studio : Form {
             browser.CoreWebView2.Settings.IsStatusBarEnabled=false;
             browser.CoreWebView2.Settings.IsNonClientRegionSupportEnabled=true;
             browser.CoreWebView2.WebMessageReceived+=WindowCommand;
-            browser.Source=new Uri("http://127.0.0.1:21870/");
-            loading.Visible=false;browser.Visible=true;
+            browser.NavigationCompleted+=HomeLoaded;
+            browser.Visible=true;
+            OpenHome();
         }catch(Exception e){if(!closing){MessageBox.Show(this,e.Message,"Stagecue startup");Close();}}
     }
     const int FrameWidth = 4;

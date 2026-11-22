@@ -16,6 +16,18 @@ const openLibrary = () =>
     req.onsuccess = () => ok(req.result);
     req.onerror = () => fail(req.error);
   });
+export async function deleteScenePackages(ids: string[]) {
+  if (!ids.length) return;
+  const db = await openLibrary();
+  try {
+    await new Promise<void>((ok, fail) => {
+      const tx = db.transaction("packages", "readwrite");
+      for (const id of ids) tx.objectStore("packages").delete(id);
+      tx.oncomplete = () => ok();
+      tx.onabort = () => fail(tx.error);
+    });
+  } finally { db.close(); }
+}
 export async function loadScene(id: string): Promise<SceneBundle> {
   const db = await openLibrary();
   try {

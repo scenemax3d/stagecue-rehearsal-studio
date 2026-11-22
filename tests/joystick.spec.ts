@@ -38,7 +38,7 @@ test("a saved controller press fires one simulator cue per release", async ({
   await page.getByRole("button", { name: "Done", exact: true }).click();
   await page.getByLabel("Input source").selectOption("mock");
   await page
-    .getByRole("button", { name: "Start rehearsal", exact: true })
+    .locator(".transport").getByRole("button", { name: "Start rehearsal", exact: true })
     .click();
   await press(true);
   await expect(page.locator(".counter")).toHaveText("02 / 05", {

@@ -19,6 +19,8 @@ async function read(url: string) {
 }
 async function scriptEntries(draft: Show) {
   const show = schema.parse(draft);
+  // The time this workspace received the scene belongs to the local library.
+  if (show.collection) delete show.collection.added;
   const entries: Entries = Object.create(null);
   const media: Record<string, string> = Object.create(null);
   for (const asset of show.assets) {
@@ -163,6 +165,7 @@ export async function importSrs(file: File) {
   }
   const collection = {
     id: crypto.randomUUID(),
+    added: { at: new Date().toISOString(), via: "imported" },
     title:
       manifest.version === 2
         ? manifest.title

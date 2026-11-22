@@ -50,6 +50,18 @@ const fresh = (): Turn => ({
 });
 const stitch = (states: Turn[]) =>
   states.map((t, i) => ({ ...t, nextStateId: states[i + 1]?.id ?? null }));
+export function blankScript(template: Show, newScene: boolean) {
+  const line = fresh();
+  return schema.parse({
+    schemaVersion: "1.0", version: "1", recognition: template.recognition,
+    language: template.language, showId: crypto.randomUUID(), title: tr("Untitled script"),
+    collection: newScene ? {
+      id: crypto.randomUUID(), title: tr("Untitled scene"),
+      added: { at: new Date().toISOString(), via: "created" },
+    } : sceneOf(template),
+    sceneMax: newScene ? undefined : template.sceneMax, assets: [], states: [line], startStateId: line.id,
+  });
+}
 function AlternativePhrasings({
   values,
   onChange,
@@ -491,24 +503,7 @@ export function Editor({
     }
   }
   function createScript(newScene: boolean) {
-    const line = fresh(),
-      id = crypto.randomUUID();
-    const collection = newScene
-      ? { id: crypto.randomUUID(), title: tr("Untitled scene") }
-      : sceneOf(d);
-    const next = schema.parse({
-      schemaVersion: "1.0",
-      version: "1",
-      recognition: d.recognition,
-      language: d.language,
-      showId: id,
-      title: tr("Untitled script"),
-      collection,
-      sceneMax: newScene ? undefined : d.sceneMax,
-      assets: [],
-      states: [line],
-      startStateId: line.id,
-    });
+    const next = blankScript(d, newScene);
     try {
       saveScripts([...scriptsWithDraft(d), next]);
       saved(next);
@@ -783,30 +778,7 @@ export function Editor({
                 values={t.alternatives}
                 onChange={(alternatives) => turn({ alternatives })}
               />
-              <div className="fields two">
-                <label>
-                  {tr("Match threshold")}{" "}
-                  <input
-                    type="number"
-                    min="0"
-                    max="1"
-                    step=".01"
-                    placeholder={String(d.recognition.matchThreshold)}
-                    value={t.trigger.threshold ?? ""}
-                    onChange={(e) =>
-                      turn({
-                        trigger: {
-                          ...t.trigger,
-                          threshold:
-                            e.target.value === ""
-                              ? undefined
-                              : Number(e.target.value),
-                        },
-                      })
-                    }
-                  />
-                </label>
-              </div>
+              {t.kind === "human_line" && <p>{tr("Match 70% of required words, including the last required word.")}</p>}
               <h3>{tr("Cue actions")}</h3>
               <div className="action-picker">
                 <label htmlFor="cue-action-type">{tr("Action type")}</label>
@@ -1195,53 +1167,6 @@ export function Editor({
               )}
               <details>
                 <summary>{tr("Advanced cue settings")}</summary>
-                <label>
-                  {tr("Minimum current-line score")}{" "}
-                  <input
-                    type="number"
-                    step=".01"
-                    min="0"
-                    max="1"
-                    placeholder={String(d.recognition.minCurrentLineScore)}
-                    value={t.trigger.minCurrentLineScore ?? ""}
-                    onChange={(e) =>
-                      turn({
-                        trigger: {
-                          ...t.trigger,
-                          minCurrentLineScore:
-                            e.target.value === ""
-                              ? undefined
-                              : Number(e.target.value),
-                        },
-                      })
-                    }
-                  />
-                </label>
-                <label>
-                  {tr("Terminal evidence")}{" "}
-                  <select
-                    value={
-                      t.trigger.requireTerminalEvidence === undefined
-                        ? "default"
-                        : String(t.trigger.requireTerminalEvidence)
-                    }
-                    onChange={(e) =>
-                      turn({
-                        trigger: {
-                          ...t.trigger,
-                          requireTerminalEvidence:
-                            e.target.value === "default"
-                              ? undefined
-                              : e.target.value === "true",
-                        },
-                      })
-                    }
-                  >
-                    <option value="default">{tr("Use script setting")}</option>
-                    <option value="true">{tr("Required")}</option>
-                    <option value="false">{tr("Optional")}</option>
-                  </select>
-                </label>
                 <label>
                   {tr("Cue ID")}{" "}
                   <input

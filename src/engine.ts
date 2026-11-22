@@ -26,20 +26,6 @@ export function spokenText(turn: Turn) {
       : turn.expectedText,
   );
 }
-function similarity(a: string, b: string) {
-  let row = Array.from({ length: b.length + 1 }, (_, i) => i);
-  for (let i = 1; i <= a.length; i++) {
-    const next = [i];
-    for (let j = 1; j <= b.length; j++)
-      next[j] = Math.min(
-        next[j - 1] + 1,
-        row[j] + 1,
-        row[j - 1] + Number(a[i - 1] !== b[j - 1]),
-      );
-    row = next;
-  }
-  return 1 - row[b.length] / Math.max(a.length, b.length, 1);
-}
 export type Hyp = {
   id: string;
   text: string;
@@ -82,7 +68,7 @@ export class Engine {
     const t = this.turn;
     return [
       lineParts(t.expectedText, t.scriptedTurn),
-      ...t.alternatives.map((text) => lineParts(text)),
+      ...t.alternatives.map((text) => lineParts(text, t.scriptedTurn)),
     ]
       .map((parts, index) => ({ parts, alternative: index > 0 }))
       .filter((c) => c.parts.some((p) => p.kind === "word"));
@@ -154,53 +140,35 @@ export class Engine {
       .flatMap(({ parts, alternative }) =>
         inputs.map((raw) => {
           const aligned = alignLine(parts, raw);
+          const heard = aligned.marks.filter(mark => mark === "heard").length;
+          const score = heard / aligned.marks.length;
           return {
             ...aligned,
             parts,
             alternative,
             raw,
-            score: similarity(aligned.input, aligned.line),
+            score,
+            matches: score >= 0.7 && aligned.marks.at(-1) === "heard",
           };
         }),
       )
-      .sort((a, b) => b.score - a.score);
+      .sort((a, b) => Number(b.matches) - Number(a.matches) || b.score - a.score);
     const best = options[0];
     if (!best) return false;
-    const input = best.input,
-      words = input.split(" ");
+    const input = best.input;
     this.feedback = {
       turnId: t.id,
       parts: best.parts,
       marks: best.marks,
       alternative: best.alternative,
     };
-    const isPrefix = options.some(
-      (o) =>
-        o.raw === best.raw && !!o.input && o.line.startsWith(o.input + " "),
-    );
-    const exact = input === best.line;
-    // A final transcript can establish completion despite an interior or
-    // final substitution. A pending ending still needs more speech.
-    const strongFinalMatch = t.scriptedTurn && h.final && !isPrefix &&
-      best.marks.at(-1) !== "pending" &&
-      best.marks.filter(mark => mark === "heard").length >= best.marks.length * 0.85;
-    const complete = (exact && (!isPrefix || h.final)) || strongFinalMatch;
-    const moreToSay =
-      t.scriptedTurn &&
-      !complete &&
-      (isPrefix || words.at(-1) !== best.line.split(" ").at(-1));
-    if (moreToSay && h.final) {
-      const prefix = best.line.split(" ").slice(0, words.length).join(" ");
-      if (
-        words.length < best.line.split(" ").length &&
-        similarity(input, prefix) >= 0.8
-      ) {
-        this.confirmedPrefix = best.raw;
-        this.seen.add(h.id);
-      }
+    if (h.final && !best.matches && best.score > 0 && best.marks.at(-1) !== "heard") {
+      // Keep useful evidence across speech endpoints until this cue completes.
+      this.confirmedPrefix = best.raw.split(" ").slice(-2 * best.marks.length).join(" ");
+      this.seen.add(h.id);
     }
     this.hypothesis = best.raw;
-    this.current = best.score;
+    this.current = this.score = best.score;
     const prior: Turn[] = [];
     let prev = t;
     while (prior.length < r.windowSize) {
@@ -221,35 +189,9 @@ export class Engine {
               0.25);
     });
     this.context = prior.length ? evidence / prior.length : 0;
-    this.score =
-      !exact && !strongFinalMatch && prior.length && recent.some((v) => h.at - v.at <= r.maxHistoryAgeMs)
-        ? (r.currentLineWeight * this.current +
-            r.historyWeight * this.context) /
-          (r.currentLineWeight + r.historyWeight)
-        : this.current;
-    const terminal =
-      h.final || input.split(" ").at(-1) === best.line.split(" ").at(-1);
-    this.reason = h.feedbackOnly && !complete
-      ? "Listening for the rest of the line"
-      : moreToSay
-        ? "Waiting for the rest of the turn"
-        : h.earlyProbe && input !== best.line
-          ? "Waiting for complete line"
-          : !this.current ||
-              this.current <
-                (t.trigger.minCurrentLineScore ?? r.minCurrentLineScore)
-            ? "Current line below minimum"
-            : this.score < (t.trigger.threshold ?? r.matchThreshold)
-              ? "Below cue threshold"
-              : (t.trigger.requireTerminalEvidence ??
-                    r.requireTerminalEvidence) &&
-                  !terminal
-                ? "Waiting for line ending"
-                : !h.final && isPrefix
-                  ? "Ambiguous prefix"
-                  : h.at - this.lastFire < r.cooldownMs
-                    ? "Cooldown"
-                    : "Matched";
+    this.reason = !best.matches
+      ? best.marks.at(-1) !== "heard" ? "Waiting for line ending" : "Below cue threshold"
+      : h.at - this.lastFire < r.cooldownMs ? "Cooldown" : "Matched";
     this.phase = this.current >= 0.45 ? "CANDIDATE" : "LISTENING";
     if (this.reason !== "Matched") return false;
     this.seen.add(h.id);

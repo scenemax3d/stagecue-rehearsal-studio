@@ -98,7 +98,7 @@ test("show validates on JSON round trip and rejects bad references, thresholds a
   }
 });
 
-test("early local probes need a complete line, while final recognition tolerates a variation", () => {
+test("an endpoint cannot replace a missing final word", () => {
   const e = setup();
   const probe = {
     id: "speech",
@@ -114,7 +114,7 @@ test("early local probes need a complete line, while final recognition tolerates
   assert.equal(e.accept({ ...probe, final: true, earlyProbe: false }), false);
   assert.equal(
     setup().accept({ ...probe, final: true, earlyProbe: false }),
-    true,
+    false,
   );
 });
 
@@ -176,17 +176,17 @@ test("Oliver cue 19 fires once on exact streaming recognition even with weak his
   assert.equal(e.serial, 1);
 });
 
-test("a provisional exact alternative that also starts a longer line waits for the endpoint", () => {
+test("a completed alternative has its own mandatory ending", () => {
   const e = setup();
   e.turn.expectedText = "אני מוכן עכשיו";
   e.turn.alternatives = ["אני מוכן"];
   e.turn.scriptedTurn = true;
   const h = { id: "short", at: 800, text: "אני מוכן", final: false, feedbackOnly: true };
-  assert.equal(e.accept(h), false);
-  assert.ok(e.accept({ ...h, feedbackOnly: false, final: true }));
+  assert.ok(e.accept(h));
+  assert.equal(e.accept({ ...h, feedbackOnly: false, final: true }), false);
 });
 
-test("Oliver cue 20 accepts a final-word substitution but waits through pauses", () => {
+test("Oliver cue 20 waits for the mandatory final word across pauses", () => {
   const e = setup();
   const t = e.show.states[3];
   t.scriptedTurn = true;
@@ -200,8 +200,9 @@ test("Oliver cue 20 accepts a final-word substitution but waits through pauses",
   const last = { id: "second", at: 1400, text: "שתגיע", final: false };
   assert.equal(e.accept({ ...last, earlyProbe: true }), false);
   assert.equal(e.accept({ ...last, feedbackOnly: true }), false);
-  assert.ok(e.accept({ ...last, final: true }));
+  assert.equal(e.accept({ ...last, final: true }), false);
   assert.equal(e.feedback?.marks.at(-1), "unheard");
+  assert.ok(say(e, 1800, "שתיגע", "corrected"));
   e.complete(e.epoch);
   assert.equal(e.id, t.nextStateId);
 });
@@ -229,5 +230,50 @@ test("Rachel cue 8 advances with one missed word once the actor reaches חודש
     assert.equal(e.feedback?.marks.at(-2), number === "7" ? "heard" : "unheard");
     e.complete(e.epoch);
     assert.equal(e.id, t.nextStateId);
+  }
+});
+
+test("Oliver cue 26 accepts one interior omission or substitution after the line ends", () => {
+  for (const transcript of ["אז תרים שלא לך", "אז תרים שלא תאמר לך"]) {
+    const e = setup();
+    const t = e.show.states[3];
+    t.scriptedTurn = true;
+    t.expectedText = "אז תרים, שלא יתקרר לך.";
+    t.alternatives = [];
+    e.enter(t.id);
+    e.history.push({stateId:"unrelated", at:500, score:1, text:"previous"});
+    assert.equal(e.accept({id:"interim",text:transcript.split(" ").slice(0,-1).join(" "),at:1000,final:false,feedbackOnly:true}), false);
+    assert.ok(say(e, 1300, transcript, "final"));
+    assert.deepEqual(e.feedback?.marks, ["heard","heard","heard","unheard","heard"]);
+    e.complete(e.epoch);
+    assert.equal(e.id, t.nextStateId);
+  }
+});
+
+test("a pause before the last word of Oliver cue 26 still waits", () => {
+  const e = setup();
+  e.turn.scriptedTurn = true;
+  e.turn.expectedText = "אז תרים, שלא יתקרר לך.";
+  e.turn.alternatives = [];
+  assert.equal(say(e, 1000, "אז תרים שלא יתקרר"), false);
+  assert.equal(e.feedback?.marks.at(-1), "pending");
+});
+
+test("every scene uses 70% of required words and an aligned final required word", () => {
+  for (const scriptedTurn of [false, true]) {
+    for (const [text, pass, score] of [
+      ["two four five six seven eight ten", true, 0.7],
+      ["two four five six seven ten", false, 0.6],
+      ["one two three four five six seven eight nine", false, 0.9],
+    ] as const) {
+      const e = setup();
+      e.turn.scriptedTurn = scriptedTurn;
+      e.turn.expectedText = "one two #optional words# three four five six seven eight nine ten #extra#";
+      e.turn.alternatives = [];
+      e.turn.trigger.threshold = pass ? 1 : 0;
+      e.turn.trigger.requireTerminalEvidence = false;
+      assert.equal(say(e, 1000, text), pass);
+      assert.equal(e.score, score);
+    }
   }
 });

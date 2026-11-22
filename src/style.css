@@ -851,7 +851,7 @@ textarea,
 .room-credentials{margin-bottom:1rem}.room-credentials summary{cursor:pointer}
 
 
-.stage.embedded {height:auto;aspect-ratio:3/2;overflow:hidden;background:#171816;}
+.stage.embedded {width:100%;height:auto;aspect-ratio:3/2;overflow:hidden;background:#171816;}
 .embedded:fullscreen {width:100vw;height:100vh;}
 .scenemax-frame {position:absolute;top:50%;left:50%;width:900px;height:600px;border:0;transform:translate(-50%,-50%) scale(var(--scale,1));}
 .embedded .stagecaption {display:none;}
@@ -994,9 +994,10 @@ html[dir="rtl"] .action-content { direction:rtl; }
 .library-scene strong {grid-column:1/-1;font:600 22px/1.3 Georgia,serif;overflow-wrap:anywhere;}
 .library-scene span {color:var(--muted);font-size:13px;}
 .library-play {color:var(--coral);}
+.library-date {grid-column:1/-1;}
 main:has(.rehearsing) {width:min(1600px,96%);padding-top:14px;}
 main:has(.rehearsing) :is(.pagehead, footer), .rehearsing .stagecaption {display:none;}
-.rehearsing .stage:not(:fullscreen) {height:clamp(185px,35vh,500px);}
+.rehearsing .stage:not(.embedded):not(:fullscreen) {height:clamp(185px,35vh,500px);}
 .rehearsing .sheetlist {max-height:max(45vh,var(--cue-window-height,0px));}
 .session-details {display:none;}
 .rehearsing ~ .session-details {display:block;margin:12px 0;color:var(--muted);}
@@ -1011,4 +1012,27 @@ body:has(.rehearsing) .headwrap :is(.local,.help-menu,.settings-trigger,nav a[hr
 @media(max-width:690px){
   .headwrap nav a svg {display:block!important;}
   .headwrap nav a {font-size:0;gap:0;padding:8px;}
+}
+
+.scene-card {position:relative;display:grid;}
+.scene-card .library-scene {width:100%;}
+.scene-options {position:absolute;inset-block-start:12px;inset-inline-end:12px;padding:8px;}
+.removed-scenes {margin-block:28px;}
+.removed-scenes summary {cursor:pointer;margin-block-end:12px;}
+.removed-scenes button {margin:4px;}
+.scene-removal {width:min(460px,90vw);border:1px solid var(--border);border-radius:12px;background:var(--paper);color:var(--ink);padding:24px;}
+.scene-removal::backdrop {background:#17232088;}
+.scene-removal h2 {margin-top:0;}
+.scene-removal div {display:flex;gap:8px;flex-wrap:wrap;}
+.scene-removal .danger {color:var(--coral);}
+
+header:has(.menu-transport) {position:sticky;top:0;z-index:5;}
+.headwrap:has(.menu-transport) {column-gap:clamp(6px,1.4vw,22px);}
+.menu-transport {flex:none;}
+.menu-transport button {white-space:nowrap;}
+@media (max-width:1050px) {
+  .headwrap:has(.menu-transport) .local {display:none;}
+}
+@media (max-width:800px) {
+  .headwrap:has(.menu-transport) {flex-wrap:wrap;height:auto;min-height:46px;padding-block:5px;row-gap:4px;}
 }

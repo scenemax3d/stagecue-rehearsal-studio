@@ -2,10 +2,12 @@ import { restoreOutput } from "./audioOutput";
 import { tr } from "./language";
 import { language, switchLanguage, type Language, message } from "./language";
 import { StageCueFiles } from "./StageCueFiles";
+import { SceneRemoval } from "./SceneRemoval";
 import { MicrophoneControls } from "./MicrophoneControls";
 import { loadScene } from "./sceneLibrary";
 import { localGateway } from "./localhost";
 import React, { useState, useEffect, useRef, useReducer } from "react";
+import { createPortal } from "react-dom";
 import { createRoot } from "react-dom/client";
 import {
   Minus,
@@ -13,6 +15,7 @@ import {
   Copy,
   PanelsTopLeft,
   LibraryBig,
+  Ellipsis,
   NotebookPen,
   AudioLines,
   Play,
@@ -35,7 +38,7 @@ import {
   Repeat2,
   SlidersHorizontal,
 } from "lucide-react";
-import { demo, projects, sceneOf, sceneScripts } from "./storage";
+import { demo, projects, sceneOf, sceneScripts, saveScripts } from "./storage";
 import type { Show } from "./model";
 import {
   displayText,
@@ -45,7 +48,7 @@ import {
 } from "./lineMatch";
 import { spokenText } from "./engine";
 import { Session, names } from "./session";
-import { Editor } from "./Editor";
+import { Editor, blankScript } from "./Editor";
 import { HelpMenu } from "./HelpMenu";
 import { GeneralSettings } from "./GeneralSettings";
 import {
@@ -163,21 +166,30 @@ function Studio() {
   const [list, setList] = useState(projects),
     [show, setShow] = useState(
       () =>
-        projects().find(
+        list.find(
           (s) =>
             s.showId ===
             (new URLSearchParams(location.search).get("show") ||
               localStorage.getItem("stagecue.selected")),
-        ) || demo,
+        ) || list[0] || demo,
     ),
     [view, setView] = useState(studioView);
+  const [menuSlot, setMenuSlot] = useState<HTMLDivElement | null>(null);
   const edit = view === "editor";
+  const home = view === "home" || !list.length;
+  const [manage, setManage] = useState<{ id: string; title: string; removed: boolean } | null>(null);
+  const removedScenes = React.useMemo(() => Array.from(new Map(
+    projects(true).map(s => [sceneOf(s).id, sceneOf(s)])
+  ).values()), [list]);
   useEffect(() => {
     const f = () => setView(studioView());
     window.addEventListener("hashchange", f);
     return () => window.removeEventListener("hashchange", f);
   }, []);
   const [locale, setLocale] = useState(language);
+  const localDate = React.useMemo(() => new Intl.DateTimeFormat(locale, {
+    dateStyle: "medium", timeStyle: "short",
+  }), [locale]);
   const scenes = Array.from(
     new Map(list.map((s) => [sceneOf(s).id, sceneOf(s)])).values(),
   );
@@ -213,15 +225,16 @@ function Studio() {
             <a className={view === "home" ? "selected" : ""} href="#home">
               <LibraryBig />{tr("Home")}
             </a>
-            <a className={view === "player" ? "selected" : ""} href="#player">
+            {!!list.length && <><a className={view === "player" ? "selected" : ""} href="#player">
               <PanelsTopLeft />
               {tr("Rehearsal")}{" "}
             </a>
             <a className={edit ? "selected" : ""} href="#editor">
               <NotebookPen />
               {tr("Scene Editor")}{" "}
-            </a>
+            </a></>}
           </nav>
+          {!home && !edit && <div className="menu-transport" ref={setMenuSlot} />}
           <HelpMenu />
           <button
             className="settings-trigger"
@@ -250,25 +263,52 @@ function Studio() {
         />
       )}
       <main>
-        {view === "home" ? <section className="scene-library">
+        {home ? <section className="scene-library">
           <div className="library-hero">
             <h1>{tr("Scene library")}</h1>
             <StageCueFiles opened={s => { setList(projects()); activate(s); }} />
           </div>
           <h2>{tr("Available scenes")} <span>{scenes.length}</span></h2>
+          {!list.length && <button onClick={() => {
+            const next = blankScript(demo, true);
+            saveScripts([next]);
+            setList(projects());
+            choose(next);
+            location.hash = "editor";
+          }}>{tr("New scene")}</button>}
           <div className="library-grid">
             {scenes.map(scene => {
               const members = list.filter(script => sceneOf(script).id === scene.id);
-              return <button className="library-scene" key={scene.id} onClick={() =>
+              return <div className="scene-card" key={scene.id}><button className="library-scene" onClick={() =>
                 activate(members.find(script => script.showId === show.showId) ?? members[0])
               }>
                 <ScrollText aria-hidden="true" />
                 <strong dir="auto">{scene.title}</strong>
                 <span>{tr("Scripts in scene")} · {members.length}</span>
                 <Play className="library-play" aria-hidden="true" />
-              </button>;
+                <span className="library-date">{scene.added ? <>
+                  {tr(scene.added.via === "imported" ? "Imported" : "Created")} ·{" "}
+                  <time dateTime={scene.added.at}>{localDate.format(new Date(scene.added.at))}</time>
+                </> : tr("Date added unavailable")}</span>
+              </button><button className="scene-options" aria-label={tr("Manage scene") + " · " + scene.title}
+                title={tr("Manage scene")} onClick={() => setManage({...scene, removed:false})}><Ellipsis /></button></div>;
             })}
           </div>
+          {removedScenes.length > 0 && <details className="removed-scenes">
+            <summary>{tr("Removed scenes")} · {removedScenes.length}</summary>
+            {removedScenes.map(scene => <button key={scene.id} onClick={() => setManage({...scene, removed:true})}>
+              <span dir="auto">{scene.title}</span><Ellipsis />
+            </button>)}
+          </details>}
+          {manage && <SceneRemoval scene={manage} removed={manage.removed} close={() => setManage(null)} changed={() => {
+            const available = projects();
+            setList(available);
+            if (!available.some(s => s.showId === show.showId) || !list.length) {
+              if (available.length) choose(available[0]);
+              else localStorage.removeItem("stagecue.selected");
+            }
+            setManage(null);
+          }} />}
         </section> : <>
         <div className="pagehead">
           <div>
@@ -344,6 +384,7 @@ function Studio() {
           />
         ) : (
           <Player
+            menuSlot={menuSlot}
             key={JSON.stringify(show)}
             show={show}
             binding={settings ? null : binding}
@@ -359,10 +400,12 @@ function Studio() {
   );
 }
 function Player({
+  menuSlot,
   show,
   binding,
 }: {
   show: Show;
+  menuSlot: HTMLDivElement | null;
   binding: ButtonBinding | null;
 }) {
   const [, draw] = useReducer((n) => n + 1, 0),
@@ -554,8 +597,37 @@ function Player({
     elapsed.length
       ? Math.round(elapsed[Math.ceil(elapsed.length * p) - 1]) + " " + tr("ms")
       : "—";
+  const rehearsalButton = (
+    <button
+      className="primary"
+      disabled={
+        s.busy || (!active && embed && playerStatus === "loading")
+      }
+      onClick={() =>
+        active
+          ? s.pause()
+          : void s.start(finished ? show.startStateId : e.id)
+      }
+    >
+      {active && e.phase !== "PAUSED" ? (
+        <Pause />
+      ) : (
+        <Play fill="currentColor" />
+      )}
+      {embed && !active && playerStatus === "loading"
+        ? tr("Loading SceneMax…")
+        : s.busy
+          ? tr("Connecting…")
+          : active
+            ? e.phase === "PAUSED"
+              ? tr("Resume")
+              : tr("Pause rehearsal")
+            : tr("Start rehearsal")}
+    </button>
+  );
   return (
     <>
+      {menuSlot && createPortal(rehearsalButton, menuSlot)}
       <div className={active || s.busy ? "upper rehearsing" : "upper"}>
         <section className="card monitor">
           <div
@@ -655,32 +727,7 @@ function Player({
             </div>
           </div>
           <div className="transport">
-            <button
-              className="primary"
-              disabled={
-                s.busy || (!active && embed && playerStatus === "loading")
-              }
-              onClick={() =>
-                active
-                  ? s.pause()
-                  : void s.start(finished ? show.startStateId : e.id)
-              }
-            >
-              {active && e.phase !== "PAUSED" ? (
-                <Pause />
-              ) : (
-                <Play fill="currentColor" />
-              )}
-              {embed && !active && playerStatus === "loading"
-                ? tr("Loading SceneMax…")
-                : s.busy
-                  ? tr("Connecting…")
-                  : active
-                    ? e.phase === "PAUSED"
-                      ? tr("Resume")
-                      : tr("Pause rehearsal")
-                    : tr("Start rehearsal")}
-            </button>
+            {rehearsalButton}
             <button
               title={tr("Stop rehearsal")}
               aria-label={tr("Stop rehearsal")}

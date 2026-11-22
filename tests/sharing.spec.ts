@@ -167,7 +167,7 @@ test("a remote author can package the wizard example with text-only Hebrew speec
   });
   await expect(page.getByLabel("Active scene").locator("option:checked")).toHaveText("Lesson");
   await page.getByLabel("Input source").selectOption("mock");
-  await page.getByRole("button", { name: "Start rehearsal", exact: true }).click();
+  await page.locator(".transport").getByRole("button", { name: "Start rehearsal", exact: true }).click();
   await page.getByRole("button", { name: "Simulate", exact: true }).click();
   await expect.poll(() => request).toEqual({ voice: "noa", text: "שלום לך" });
   await expect(page.locator(".phase")).toHaveText("Scene complete", { timeout: 15000 });
@@ -196,4 +196,85 @@ test("settings route a test sound to the selected output and remember it", async
   await expect(output).toHaveValue("headphones");
   await output.selectOption("");
   await expect(page.locator("html")).toHaveAttribute("data-test-sink", "");
+});
+
+test("removed scenes can be restored and permanent deletion releases only their local assets", async ({page}) => {
+  await page.goto("/");
+  const base = await (await page.request.get("/example-show.json")).json();
+  await page.evaluate(async base => {
+    const scenes = ["A1", "A2", "B"].map(id => ({
+      ...base, showId:id, collection:{id:id[0], title:"Lesson "+id[0]},
+      sceneMax:{projectGuid:"example", sessionId:1000, scene:"main"},
+      scenePackage:{id:(id === "A1" ? "a" : "b").repeat(64), name:"Example"},
+    }));
+    localStorage.setItem("stagecue.projects", JSON.stringify(scenes));
+    for (const [name, store, keys] of [
+      ["stagecue-media", "files", ["A1/image.png","A2/old.wav","B/audio.wav"]],
+      ["stagecue.scenes", "packages", ["a".repeat(64),"b".repeat(64)]],
+    ] as const) {
+      await new Promise<void>((resolve,reject) => {
+        const req = indexedDB.open(name,1);
+        req.onupgradeneeded = () => req.result.createObjectStore(store);
+        req.onsuccess = () => {
+          const tx = req.result.transaction(store,"readwrite");
+          for(const key of keys) tx.objectStore(store).put(new Blob(["example"]),key);
+          tx.oncomplete = () => {req.result.close();resolve();};
+          tx.onabort = () => reject(tx.error);
+        };
+      });
+    }
+  },base);
+  await page.reload();
+  const manage = page.getByRole("button",{name:"Manage scene · Lesson A", exact:true});
+  await manage.click();
+  await page.getByRole("button",{name:"Remove from library"}).click();
+  await page.reload();
+  await expect(manage).toHaveCount(0);
+  await page.locator(".removed-scenes summary").click();
+  await page.locator(".removed-scenes").getByRole("button",{name:"Lesson A"}).click();
+  await page.getByRole("button",{name:"Restore to library"}).click();
+  await manage.click();
+  await page.getByRole("button",{name:"Delete from this computer…"}).click();
+  await page.getByRole("button",{name:"Cancel"}).click();
+  await manage.click();
+  await page.getByRole("button",{name:"Delete from this computer…"}).click();
+  await page.getByRole("button",{name:"Delete permanently"}).click();
+  await expect(manage).toHaveCount(0);
+  await page.reload();
+  await expect(page.locator(".removed-scenes")).toHaveCount(0);
+  await expect(page.getByRole("button",{name:"Manage scene · Lesson B"})).toBeVisible();
+  const keys = await page.evaluate(async () => Promise.all(
+    [["stagecue-media","files"],["stagecue.scenes","packages"]].map(([name,store]) =>
+      new Promise<IDBValidKey[]>(resolve => {
+        const req = indexedDB.open(name);
+        req.onsuccess = () => {
+          const read = req.result.transaction(store).objectStore(store).getAllKeys();
+          read.onsuccess = () => {req.result.close();resolve(read.result);};
+        };
+      }))
+  ));
+  expect(keys).toEqual([["B/audio.wav"],["b".repeat(64)]]);
+});
+
+test("scene cards keep creation time and record a fresh local time on import", async ({page}) => {
+  const created = "2026-04-15T09:10:00.000Z", imported = "2026-04-16T12:30:00.000Z";
+  await page.clock.setFixedTime(new Date(created));
+  await page.goto("/#editor");
+  await page.getByRole("button",{name:"New scene",exact:true}).click();
+  await page.getByRole("button",{name:"Add script",exact:true}).click();
+  await page.getByRole("button",{name:"Save scene",exact:true}).click();
+  const pending = page.waitForEvent("download");
+  await page.getByRole("button",{name:"Export Scene File"}).click();
+  const archive = await (await pending).path();
+  await page.goto("/");
+  const cardDate = page.locator(".library-date");
+  await expect(cardDate.filter({hasText:"Created"}).locator("time")).toHaveAttribute("datetime",created);
+  await expect(cardDate.filter({hasText:"Date added unavailable"}).first()).toBeVisible();
+  await page.clock.setFixedTime(new Date(imported));
+  await page.locator('input[accept=".srs"]').setInputFiles(archive!);
+  await expect(page.getByLabel("Active script").locator("option")).toHaveCount(2);
+  await page.goto("/");
+  await page.reload();
+  await expect(cardDate.filter({hasText:"Imported"}).locator("time")).toHaveAttribute("datetime",imported);
+  await expect(cardDate.filter({hasText:"Created"}).locator("time")).toHaveAttribute("datetime",created);
 });

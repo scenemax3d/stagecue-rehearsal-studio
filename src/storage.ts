@@ -1,5 +1,6 @@
 import { spokenText } from "./engine";
 import { localGateway } from "./localhost";
+import { deleteScenePackages } from "./sceneLibrary";
 import { schema, type Show } from "./model";
 import example from "../public/example-show.json";
 import gaon from "../public/gaon-iris-gaon.json";
@@ -118,13 +119,18 @@ const scripts = [
   elevatorExample(iris),
 ];
 export const demo = schema.parse(example);
-export function projects(): Show[] {
+function storedIds(key: string): string[] {
+  return JSON.parse(localStorage.getItem(key) || "[]");
+}
+const removedKey = "stagecue.removedScenes";
+const deletedDefaultsKey = "stagecue.deletedDefaults";
+function allProjects(): Show[] {
+  const deletedDefaults = storedIds(deletedDefaultsKey);
   const list: unknown[] = JSON.parse(
     localStorage.getItem("stagecue.projects") || "[]",
   );
   return [
-    demo,
-    ...scripts,
+    ...[demo, ...scripts].filter(s => !deletedDefaults.includes(s.showId)),
     ...list.map((x) => {
       const saved = schema.parse(x);
       return ["gaon-iris-gaon-elevator", "gaon-iris-iris-elevator"].includes(
@@ -135,7 +141,18 @@ export function projects(): Show[] {
     }),
   ].filter((s, i, a) => a.findLastIndex((t) => t.showId === s.showId) === i);
 }
-export function sceneOf(show: Show) {
+export function projects(removed = false): Show[] {
+  const hidden = new Set(storedIds(removedKey));
+  if (!hidden.size) return removed ? [] : allProjects();
+  return allProjects().filter(s => hidden.has(sceneOf(s).id) === removed);
+}
+export function setSceneRemoved(id: string, removed: boolean) {
+  const hidden = new Set(storedIds(removedKey));
+  if (removed) hidden.add(id);
+  else hidden.delete(id);
+  localStorage.setItem(removedKey, JSON.stringify([...hidden]));
+}
+export function sceneOf(show: Show): NonNullable<Show["collection"]> {
   if (show.collection) return show.collection;
   if (["gaon-iris-gaon", "gaon-iris-iris"].includes(show.showId))
     return { id: "gaon-iris", title: "גאון ואיריס" };
@@ -165,7 +182,7 @@ export function scriptsWithDraft(draft: Show) {
   );
 }
 export function saveScripts(scripts: Show[]) {
-  const byId = new Map(projects().map((s) => [s.showId, s]));
+  const byId = new Map(allProjects().map((s) => [s.showId, s]));
   for (const s of scripts) byId.set(s.showId, schema.parse(s));
   const titles = new Map(
     scripts
@@ -191,6 +208,45 @@ const db = new Promise<IDBDatabase>((resolve, reject) => {
   req.onsuccess = () => resolve(req.result);
   req.onerror = () => reject(req.error);
 });
+export async function deleteLocalScene(id: string) {
+  const all = allProjects();
+  const members = all.filter(s => sceneOf(s).id === id);
+  const remaining = all.filter(s => sceneOf(s).id !== id);
+  const referenced = new Set(remaining.map(s => s.scenePackage?.id));
+  const packages = new Set(members.flatMap(s => s.scenePackage ? [s.scenePackage.id] : []));
+  const tx = (await db).transaction("files", "readwrite");
+  for (const s of members) {
+    // All media for this script, including recordings superseded during editing.
+    const prefix = s.showId + "/";
+    const range = IDBKeyRange.bound(prefix, s.showId + "0", false, true);
+    const store = tx.objectStore("files");
+    const nested = remaining.filter(other => other.showId.startsWith(prefix));
+    if (!nested.length) store.delete(range);
+    else {
+      const req = store.openKeyCursor(range);
+      req.onsuccess = () => {
+        const cursor = req.result;
+        if (!cursor) return;
+        if (!nested.some(other => String(cursor.key).startsWith(other.showId + "/")))
+          store.delete(cursor.primaryKey);
+        cursor.continue();
+      };
+    }
+  }
+  await new Promise<void>((ok, fail) => {
+    tx.oncomplete = () => ok();
+    tx.onabort = () => fail(tx.error);
+  });
+  await deleteScenePackages([...packages].filter(key => !referenced.has(key)));
+  const ids = new Set(members.map(s => s.showId));
+  const defaults = [demo, ...scripts].filter(s => ids.has(s.showId));
+  if (defaults.length) localStorage.setItem(deletedDefaultsKey, JSON.stringify(
+    [...new Set([...storedIds(deletedDefaultsKey), ...defaults.map(s => s.showId)])]
+  ));
+  const saved: Show[] = JSON.parse(localStorage.getItem("stagecue.projects") || "[]");
+  localStorage.setItem("stagecue.projects", JSON.stringify(saved.filter(s => !ids.has(s.showId))));
+  setSceneRemoved(id, false);
+}
 export async function putMedia(key: string, file: File) {
   const tx = (await db).transaction("files", "readwrite");
   tx.objectStore("files").put(file, key);

@@ -108,7 +108,10 @@ const state = z.object({
 export const structure = z.object({
   schemaVersion: z.literal("1.0"),
   showId: id,
-  collection: z.object({ id, title: id }).optional(),
+  collection: z.object({
+    id, title: id,
+    added: z.object({ at: z.iso.datetime(), via: z.enum(["created", "imported"]) }).optional(),
+  }).optional(),
   title: id,
   language: id.default("he-IL"),
   version: id.default("1.0"),
