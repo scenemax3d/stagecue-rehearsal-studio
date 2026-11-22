@@ -19,7 +19,7 @@ test("a saved controller press fires one simulator cue per release", async ({
     page.evaluate((v) => {
       document.body.dataset.down = v ? "yes" : "no";
     }, down);
-  await page.goto("/");
+  await page.goto("/#player");
   await page.getByRole("button", { name: "General settings" }).click();
   await page
     .getByRole("button", { name: "Assign button", exact: true })

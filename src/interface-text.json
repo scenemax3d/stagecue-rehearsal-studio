@@ -1,4 +1,8 @@
 {
+  "Home": ["בית", "Startseite", "Inicio"],
+  "Rehearsal details": ["פרטי החזרה", "Probendetails", "Detalles del ensayo"],
+  "Scene library": ["ספריית הסצנות", "Szenenbibliothek", "Biblioteca de escenas"],
+  "Available scenes": ["סצנות זמינות", "Verfügbare Szenen", "Escenas disponibles"],
   "Image duration (seconds)": ["משך הצגת התמונה (בשניות)", "Bilddauer (Sekunden)", "Duración de la imagen (segundos)"],
   "0 keeps the image visible until replaced.": ["ב־0 התמונה נשארת עד שתוחלף.", "Bei 0 bleibt das Bild sichtbar, bis es ersetzt wird.", "Con 0, la imagen permanece hasta que se sustituye."],
   "The next action starts when this timer ends.": ["הפעולה הבאה תתחיל בתום הזמן הזה.", "Die nächste Aktion beginnt nach Ablauf dieser Zeit.", "La siguiente acción comienza cuando termina este tiempo."],

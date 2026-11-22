@@ -5,7 +5,7 @@ import { readFile } from "node:fs/promises";
 test("the language changes immediately, persists, and keeps the cue sheet on the right", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/#player");
   await page.getByRole("button", { name: "General settings" }).click();
   for (const [lang, heading] of [
     ["de", "Probenstudio"],

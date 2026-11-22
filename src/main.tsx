@@ -12,6 +12,7 @@ import {
   X,
   Copy,
   PanelsTopLeft,
+  LibraryBig,
   NotebookPen,
   AudioLines,
   Play,
@@ -153,6 +154,11 @@ function WindowControls({ bridge }: { bridge: WindowBridge }) {
     </div>
   );
 }
+function studioView() {
+  if (location.hash === "#editor") return "editor";
+  if (location.hash === "#player" || (!location.hash && new URLSearchParams(location.search).has("show"))) return "player";
+  return "home";
+}
 function Studio() {
   const [list, setList] = useState(projects),
     [show, setShow] = useState(
@@ -164,9 +170,10 @@ function Studio() {
               localStorage.getItem("stagecue.selected")),
         ) || demo,
     ),
-    [edit, setEdit] = useState(location.hash === "#editor");
+    [view, setView] = useState(studioView);
+  const edit = view === "editor";
   useEffect(() => {
-    const f = () => setEdit(location.hash === "#editor");
+    const f = () => setView(studioView());
     window.addEventListener("hashchange", f);
     return () => window.removeEventListener("hashchange", f);
   }, []);
@@ -190,16 +197,23 @@ function Studio() {
     localStorage.setItem("stagecue.selected", s.showId);
     setShow(s);
   };
+  const activate = (script: Show) => {
+    choose(script);
+    location.hash = "player";
+  };
   return (
     <>
       <header className={windowBridge ? "desktop-header" : undefined}>
         <div className="headwrap">
-          <a className="brand" href="#player" dir="ltr">
+          <a className="brand" href="#home" dir="ltr">
             <img src="/stagecue.png" className="brandmark" alt="" />
             Stagecue
           </a>
           <nav>
-            <a className={!edit ? "selected" : ""} href="#player">
+            <a className={view === "home" ? "selected" : ""} href="#home">
+              <LibraryBig />{tr("Home")}
+            </a>
+            <a className={view === "player" ? "selected" : ""} href="#player">
               <PanelsTopLeft />
               {tr("Rehearsal")}{" "}
             </a>
@@ -236,6 +250,26 @@ function Studio() {
         />
       )}
       <main>
+        {view === "home" ? <section className="scene-library">
+          <div className="library-hero">
+            <h1>{tr("Scene library")}</h1>
+            <StageCueFiles opened={s => { setList(projects()); activate(s); }} />
+          </div>
+          <h2>{tr("Available scenes")} <span>{scenes.length}</span></h2>
+          <div className="library-grid">
+            {scenes.map(scene => {
+              const members = list.filter(script => sceneOf(script).id === scene.id);
+              return <button className="library-scene" key={scene.id} onClick={() =>
+                activate(members.find(script => script.showId === show.showId) ?? members[0])
+              }>
+                <ScrollText aria-hidden="true" />
+                <strong dir="auto">{scene.title}</strong>
+                <span>{tr("Scripts in scene")} · {members.length}</span>
+                <Play className="library-play" aria-hidden="true" />
+              </button>;
+            })}
+          </div>
+        </section> : <>
         <div className="pagehead">
           <div>
             <div className="eyebrow kicker">
@@ -315,6 +349,7 @@ function Studio() {
             binding={settings ? null : binding}
           />
         )}
+        </>}
         <footer>
           <span>Stagecue</span>
           <span>{tr("Rehearsal workspace")}</span>
@@ -521,7 +556,7 @@ function Player({
       : "—";
   return (
     <>
-      <div className="upper">
+      <div className={active || s.busy ? "upper rehearsing" : "upper"}>
         <section className="card monitor">
           <div
             className={embed ? "stage embedded" : "stage"}
@@ -755,6 +790,9 @@ function Player({
           {message(s.error)}
         </div>
       )}
+      <details className="session-details" key={active ? "live" : "idle"}>
+        <summary>{tr("Rehearsal details")}</summary>
+      </details>
       <div className="lower">
         <section className="card">
           <div className="cardhead">

@@ -4,7 +4,7 @@ test("runs the five prerecorded cues and supports transport", async ({
 }) => {
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
-  await page.goto("/");
+  await page.goto("/#player");
   await page.getByLabel("Input source").selectOption("mock");
   await page
     .getByRole("button", { name: "Start rehearsal", exact: true })
@@ -61,7 +61,7 @@ test("microphone denial is visible and recoverable", async ({ page }) => {
   await page.routeWebSocket("ws://127.0.0.1:8765", (ws) =>
     ws.onMessage(() => ws.send('{"type":"ready"}')),
   );
-  await page.goto("/");
+  await page.goto("/#player");
   await page
     .getByRole("button", { name: "Start rehearsal", exact: true })
     .click();
@@ -111,7 +111,7 @@ test("reports a disconnected ASR service and permits retry", async ({
     connections++;
     ws.close();
   });
-  await page.goto("/");
+  await page.goto("/#player");
   for (let i = 0; i < 2; i++) {
     await page
       .getByRole("button", { name: "Start rehearsal", exact: true })
@@ -124,7 +124,7 @@ test("reports a disconnected ASR service and permits retry", async ({
 test("jump, replay and emergency stop cancel pending progression", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/#player");
   await page.getByLabel("Input source").selectOption("mock");
   await page
     .getByRole("button", { name: "Start rehearsal", exact: true })
@@ -529,7 +529,7 @@ test("authored Hebrew speech survives sharing and plays without synthesis", asyn
       .getByRole("slider", { name: "Pitch (semitones)" })
       .press("ArrowLeft");
   await page.getByLabel("Spoken text").fill("שלום גאון");
-  await expect(page.getByRole("button", { name: "Save scene" })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Generate speech" })).toBeEnabled();
   await page.getByRole("button", { name: "Generate speech" }).click();
   await expect(page.getByRole("button", { name: "Speech ready" })).toBeVisible({
     timeout: 40000,
@@ -576,7 +576,7 @@ test("Oliver's timed picture leaves the next actor cue listening", async ({ page
     localStorage.setItem("stagecue.projects", JSON.stringify([s]));
     localStorage.setItem("stagecue.selected", s.showId);
   }, show);
-  await page.goto("/");
+  await page.goto("/#player");
   await page.getByLabel("Input source").selectOption("mock");
   await page.getByRole("button", { name: "Start rehearsal", exact: true }).click();
   const simulate = page.getByRole("button", { name: "Simulate", exact: true });
@@ -597,7 +597,7 @@ test("a blocking wait counts down, pauses, and clears on advance or stop", async
     localStorage.setItem("stagecue.projects", JSON.stringify([s]));
     localStorage.setItem("stagecue.selected", s.showId);
   }, show);
-  await page.goto("/");
+  await page.goto("/#player");
   await page.getByLabel("Input source").selectOption("mock");
   const start = page.getByRole("button", { name: "Start rehearsal", exact: true });
   const simulate = page.getByRole("button", { name: "Simulate", exact: true });
@@ -648,4 +648,24 @@ test("an imported image duration can be edited in seconds and cleared", async ({
   await save.click();
   await page.reload();
   await expect(duration).toHaveValue("");
+});
+
+test("home opens a scene and rehearsal keeps setup out of the way", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByRole("heading", {name:"Scene library"})).toBeVisible();
+  await expect(page.locator(".monitor")).toHaveCount(0);
+  await page.getByRole("button", {name:/Before the curtain/}).click();
+  await page.getByLabel("Input source").selectOption("mock");
+  await page.getByRole("button", {name:"Start rehearsal", exact:true}).click();
+  await expect(page.locator(".pagehead")).toBeHidden();
+  await expect(page.getByRole("heading", {name:"Session log"})).toBeHidden();
+  await expect(page.locator(".cue.current")).toBeVisible();
+  await page.getByRole("button", {name:"Pause rehearsal"}).click();
+  await expect(page.locator(".pagehead")).toBeHidden();
+  await page.getByRole("button", {name:"Stop rehearsal"}).click();
+  await expect(page.getByLabel("Active scene")).toBeVisible();
+  await page.getByRole("link", {name:"Home",exact:true}).click();
+  await expect(page.getByRole("button", {name:"Open Scene file"})).toBeVisible();
+  await page.goto("/");
+  await expect(page.getByRole("heading", {name:"Scene library"})).toBeVisible();
 });
