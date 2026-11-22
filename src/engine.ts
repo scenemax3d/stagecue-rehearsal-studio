@@ -141,18 +141,23 @@ export class Engine {
         inputs.map((raw) => {
           const aligned = alignLine(parts, raw);
           const heard = aligned.marks.filter(mark => mark === "heard").length;
-          const score = heard / aligned.marks.length;
+          const weakEnding = h.final && aligned.endingSubstitution;
+          const hasEnding = aligned.marks.at(-1) === "heard" || weakEnding;
+          const score = (heard + aligned.anchoredSubstitutions * 0.5 + Number(weakEnding)) / aligned.marks.length;
           return {
             ...aligned,
             parts,
             alternative,
             raw,
             score,
-            matches: score >= 0.7 && aligned.marks.at(-1) === "heard",
+            hasEnding,
+            weakEnding,
+            matches: score >= 0.7 && hasEnding,
           };
         }),
       )
-      .sort((a, b) => Number(b.matches) - Number(a.matches) || b.score - a.score);
+      .sort((a, b) => Number(b.matches) - Number(a.matches) || b.score - a.score ||
+        Number(a.weakEnding) - Number(b.weakEnding));
     const best = options[0];
     if (!best) return false;
     const input = best.input;
@@ -190,7 +195,7 @@ export class Engine {
     });
     this.context = prior.length ? evidence / prior.length : 0;
     this.reason = !best.matches
-      ? best.marks.at(-1) !== "heard" ? "Waiting for line ending" : "Below cue threshold"
+      ? !best.hasEnding ? "Waiting for line ending" : "Below cue threshold"
       : h.at - this.lastFire < r.cooldownMs ? "Cooldown" : "Matched";
     this.phase = this.current >= 0.45 ? "CANDIDATE" : "LISTENING";
     if (this.reason !== "Matched") return false;

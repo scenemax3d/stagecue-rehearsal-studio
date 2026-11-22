@@ -1,5 +1,10 @@
 {
-  "Match 70% of required words, including the last required word.": ["יש לזהות לפחות 70% ממילות החובה, כולל מילת החובה האחרונה.", "Mindestens 70 % der Pflichtwörter einschließlich des letzten müssen erkannt werden.", "Se debe reconocer al menos el 70 % de las palabras obligatorias, incluida la última."],
+  "Your line": ["השורה שלך", "Dein Text", "Tu línea"],
+  "Your turn to speak": ["הגיע תורך לדבר", "Du bist dran", "Tu turno de hablar"],
+  "Retry": ["ניסיון חוזר", "Erneut versuchen", "Reintentar"],
+  "Opening scene library…": ["ספריית הסצנות נפתחת…", "Szenenbibliothek wird geöffnet…", "Abriendo la biblioteca de escenas…"],
+  "Could not open the scene library.": ["לא ניתן לפתוח את ספריית הסצנות.", "Die Szenenbibliothek konnte nicht geöffnet werden.", "No se pudo abrir la biblioteca de escenas."],
+  "Reach 70% coverage. Misheard words between exact matches earn half credit. A misheard ending counts when recognition finishes.": ["נדרש כיסוי של 70%. מילים ששובשו בין שתי מילים שזוהו במדויק מקבלות חצי ניקוד. מילה אחרונה ששובשה נספרת בסיום הזיהוי.", "70 % Abdeckung erforderlich. Falsch erkannte Wörter zwischen zwei Treffern zählen halb. Ein falsch erkanntes Schlusswort zählt nach Abschluss der Erkennung.", "Se requiere un 70 % de cobertura. Las palabras mal reconocidas entre dos aciertos cuentan la mitad. La última palabra mal reconocida cuenta al finalizar el reconocimiento."],
   "Created": ["נוצרה", "Erstellt", "Creada"],
   "Imported": ["יובאה", "Importiert", "Importada"],
   "Date added unavailable": ["מועד ההוספה אינו זמין", "Hinzugefügt am: unbekannt", "Fecha de incorporación desconocida"],

@@ -114,7 +114,7 @@ test("an endpoint cannot replace a missing final word", () => {
   assert.equal(e.accept({ ...probe, final: true, earlyProbe: false }), false);
   assert.equal(
     setup().accept({ ...probe, final: true, earlyProbe: false }),
-    false,
+    true,
   );
 });
 
@@ -200,19 +200,19 @@ test("Oliver cue 20 waits for the mandatory final word across pauses", () => {
   const last = { id: "second", at: 1400, text: "שתגיע", final: false };
   assert.equal(e.accept({ ...last, earlyProbe: true }), false);
   assert.equal(e.accept({ ...last, feedbackOnly: true }), false);
-  assert.equal(e.accept({ ...last, final: true }), false);
+  assert.ok(e.accept({ ...last, final: true }));
   assert.equal(e.feedback?.marks.at(-1), "unheard");
-  assert.ok(say(e, 1800, "שתיגע", "corrected"));
   e.complete(e.epoch);
   assert.equal(e.id, t.nextStateId);
 });
 
-test("a short scripted line with a different ending still needs stronger evidence", () => {
+test("a finalized substitution counts on short lines and keeps the red feedback", () => {
   const e = setup();
   e.turn.scriptedTurn = true;
   e.turn.expectedText = "טוב תראה לי";
   e.turn.alternatives = [];
-  assert.equal(say(e, 1000, "טוב תראה לה"), false);
+  assert.ok(say(e, 1000, "טוב תראה לה"));
+  assert.deepEqual(e.feedback?.marks, ["heard", "heard", "unheard"]);
 });
 
 test("Rachel cue 8 advances with one missed word once the actor reaches חודשים", () => {
@@ -274,6 +274,41 @@ test("every scene uses 70% of required words and an aligned final required word"
       e.turn.trigger.requireTerminalEvidence = false;
       assert.equal(say(e, 1000, text), pass);
       assert.equal(e.score, score);
+    }
+  }
+});
+
+test("a substituted ending counts at the 70% boundary, but silence and skipped words do not", () => {
+  for (const [text, pass] of [
+    ["x y three four five six seven eight z different", true],
+    ["x y z four five six seven eight z different", false],
+    ["one two three four five six different", false],
+    ["one two three four five six eight nine different", true],
+    ["one two three four five six seven eight nine", false],
+    ["one two three four five six seven eight nine aside", false],
+    ["one two three four five six seven eight nine different aside", true],
+  ] as const) {
+    const e = setup();
+    e.turn.expectedText = "one two three four five six seven eight nine ten #aside#";
+    e.turn.alternatives = [];
+    assert.equal(say(e, 1000, text), pass);
+  }
+});
+
+test("exact words anchor a misheard middle word in a three-word line", () => {
+  for (const final of [false, true]) {
+    for (const [text, pass, score] of [
+      ["טוב פה נראה", true, 2.5 / 3],
+      ["טוב נראה", false, 2 / 3],
+      ["טוב בוא", false, 2 / 3],
+      ["מה זה נראה", false, 1 / 3],
+    ] as const) {
+      const e = setup();
+      e.turn.expectedText = "טוב. בוא נראה.";
+      e.turn.alternatives = [];
+      assert.equal(say(e, 1000, text, "utterance", final), pass);
+      assert.equal(e.score, score);
+      if (pass) assert.deepEqual(e.feedback?.marks, ["heard", "unheard", "heard"]);
     }
   }
 });

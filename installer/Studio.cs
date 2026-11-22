@@ -36,7 +36,7 @@ class Studio : Form {
             if(e.IsSuccess) {
                 // Navigation can succeed even when a script fails to load and React never mounts.
                 for(int i=0;i<40&&!closing&&attempt==startupAttempt;i++) {
-                    var ready=await browser.CoreWebView2.ExecuteScriptAsync("!!document.querySelector('.scene-library .library-grid')");
+                    var ready=await browser.CoreWebView2.ExecuteScriptAsync("!!document.querySelector('.scene-library .library-grid, .library-startup')");
                     if(closing||attempt!=startupAttempt)return;
                     if(ready=="true") {
                         browser.NavigationCompleted-=HomeLoaded;

@@ -55,6 +55,16 @@ Name: "{group}\Stagecue Rehearsal Studio"; Filename: "{app}\Stagecue.exe"
 [Run]
 Filename: "{app}\Stagecue.exe"; Description: "Open Stagecue Rehearsal Studio"; Flags: nowait postinstall skipifsilent
 [Code]
+// Both editions share this WebView profile and its localStorage and IndexedDB
+// databases. Never allow an application install to overlap the user workspace.
+function PathsOverlap(A, B: String): Boolean;
+begin
+  A := AddBackslash(ExpandFileName(A));
+  B := AddBackslash(ExpandFileName(B));
+  Result := (CompareText(Copy(A, 1, Length(B)), B) = 0) or
+            (CompareText(Copy(B, 1, Length(A)), A) = 0);
+end;
+
 function HasWebView: Boolean;
 var V: String; K: String;
 begin
@@ -65,6 +75,10 @@ function PrepareToInstall(var NeedsRestart: Boolean): String;
 var Code: Integer;
 begin
   Result := '';
+  if PathsOverlap(ExpandConstant('{app}'), ExpandConstant('{localappdata}\Stagecue\Workspace')) then begin
+    Result := 'Choose an application folder outside the Stagecue workspace, where your imported scenes are stored.';
+    Exit;
+  end;
   if not HasWebView then begin
     ExtractTemporaryFile('MicrosoftEdgeWebView2RuntimeInstallerX64.exe');
     if not Exec(ExpandConstant('{tmp}\MicrosoftEdgeWebView2RuntimeInstallerX64.exe'),'/silent /install','',SW_HIDE,ewWaitUntilTerminated,Code) or (Code <> 0) then

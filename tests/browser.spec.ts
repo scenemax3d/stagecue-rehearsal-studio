@@ -655,6 +655,7 @@ test("home opens a scene and rehearsal keeps setup out of the way", async ({ pag
   await expect(page.getByRole("heading", {name:"Scene library"})).toBeVisible();
   await expect(page.locator(".monitor")).toHaveCount(0);
   await page.getByRole("button", {name:/^Before the curtain/}).click();
+  await expect(page.getByRole("button", {name:"Open Scene file"})).toHaveCount(0);
   await page.getByLabel("Input source").selectOption("mock");
   await page.locator(".transport").getByRole("button", {name:"Start rehearsal", exact:true}).click();
   await expect(page.locator(".pagehead")).toBeHidden();
@@ -715,4 +716,27 @@ test("top rehearsal control stays in view and follows the transport", async ({pa
   await expect(page.locator(".phase")).toHaveText("Listening");
   await page.getByLabel("Stop rehearsal").click();
   await expect(start).toBeInViewport();
+});
+
+test("your microphone appears only on live actor turns and cue rows identify both speakers", async ({page}) => {
+  await page.goto("/?show=gaon-iris-gaon");
+  const rows = page.locator(".sheetlist .cue");
+  await expect(rows.nth(0)).toContainText("Your line");
+  await expect(rows.nth(1)).toContainText("Virtual partner");
+  const mic = page.getByRole("img",{name:"Your turn to speak"});
+  await expect(mic).toHaveCount(0);
+  await page.getByLabel("Input source").selectOption("mock");
+  const transport = page.locator(".transport");
+  await transport.getByRole("button",{name:"Start rehearsal",exact:true}).click();
+  await expect(mic).toBeVisible();
+  await transport.getByRole("button",{name:"Pause rehearsal",exact:true}).click();
+  await expect(mic).toHaveCount(0);
+  await transport.getByRole("button",{name:"Resume",exact:true}).click();
+  await expect(mic).toBeVisible();
+  await page.getByLabel("Manually fire current cue").click();
+  await expect(page.locator(".cue.current")).toContainText("Virtual partner");
+  await expect(mic).toHaveCount(0);
+  await expect(mic).toBeVisible({timeout:15000});
+  await page.getByLabel("Stop rehearsal").click();
+  await expect(mic).toHaveCount(0);
 });

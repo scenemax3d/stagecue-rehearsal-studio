@@ -1,4 +1,5 @@
-import { unzip } from "fflate";
+import { diskLibrary, libraryRequest } from "./diskLibrary";
+import { unzipSync, zipSync, strFromU8, strToU8, unzip } from "fflate";
 
 type Manifest = {
   entry: string;
@@ -29,6 +30,17 @@ export async function deleteScenePackages(ids: string[]) {
   } finally { db.close(); }
 }
 export async function loadScene(id: string): Promise<SceneBundle> {
+  if (diskLibrary) {
+    const response = await libraryRequest("getPackage", undefined, {id});
+    if (!response.ok) throw Error("Missing SceneMax package: " + id);
+    const entries = unzipSync(new Uint8Array(await response.arrayBuffer()));
+    const manifest: Manifest = JSON.parse(strFromU8(entries["game-manifest.json"]));
+    delete entries["game-manifest.json"];
+    return {manifest, assets: new Map(Object.entries(entries).map(([name, bytes]) => [name, new Blob([new Uint8Array(bytes)])]))};
+  }
+  return loadLegacyPackage(id);
+}
+export async function loadLegacyPackage(id: string): Promise<SceneBundle> {
   const db = await openLibrary();
   try {
     return await new Promise((ok, fail) => {
@@ -191,6 +203,10 @@ export async function storeSceneEntries(
   const id = Array.from(new Uint8Array(digest), (n) =>
     n.toString(16).padStart(2, "0"),
   ).join("");
+  if (diskLibrary) {
+    await writePackage(id, {manifest, assets});
+    return { id, name: name || "SceneMax scene" };
+  }
   const db = await openLibrary();
   try {
     await new Promise<void>((ok, fail) => {
@@ -203,4 +219,12 @@ export async function storeSceneEntries(
     db.close();
   }
   return { id, name: name || "SceneMax scene" };
+}
+
+export async function writePackage(id: string, bundle: SceneBundle) {
+  const entries: Record<string,Uint8Array> = Object.create(null);
+  entries["game-manifest.json"] = strToU8(JSON.stringify(bundle.manifest, null, 2));
+  for (const [path, blob] of bundle.assets)
+    entries[path] = new Uint8Array(await blob.arrayBuffer());
+  await libraryRequest("putPackage", new Blob([new Uint8Array(zipSync(entries,{level:0}))]), {id});
 }

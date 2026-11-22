@@ -176,7 +176,7 @@ export async function importSrs(file: File) {
   );
   for (const [i, s] of scripts.entries())
     await importMedia(s.showId, collected[i].files);
-  saveScripts(scripts);
+  await saveScripts(scripts);
   return (
     (Number.isInteger(manifest.active) && scripts[manifest.active]) ||
     scripts[0]

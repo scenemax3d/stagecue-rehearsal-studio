@@ -45,7 +45,7 @@ Run "npm.cmd" @("run","build")
 $desktop = if ($env:SCENEMAX_DESKTOP) {$env:SCENEMAX_DESKTOP} else {"C:/dev/scenemax_desktop"}
 Copy-Item "$desktop/tools/multiplayer-server/bin/windows-x64/scenemax-mp-server.exe" "$out/relay.exe"
 Copy-Item "$desktop/scenemax3d_nextgen/target/release/scenemax_web_gateway.exe" "$out/gateway.exe"
-Copy-Item installer/serve.py,service/asr.py $out
+Copy-Item installer/serve.py,installer/content_library.py,service/asr.py $out
 New-Item -ItemType Directory -Force "$out/studio" |Out-Null
 $target=(Resolve-Path -LiteralPath "$out/studio").Path
 if($target -ne ([IO.Path]::GetFullPath((Join-Path $out "studio"))) -or ((Get-Item -LiteralPath $target).Attributes -band [IO.FileAttributes]::ReparsePoint)){throw "Unexpected staging directory: $target"}

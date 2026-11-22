@@ -188,6 +188,7 @@ export function Editor({
     [actionsValid, setActionsValid] = useState(true),
     [settingsValid, setSettingsValid] = useState(true);
   const scriptLine = useRef<HTMLTextAreaElement>(null);
+  const [saving, setSaving] = useState(false);
   const [uploadingMedia, setUploadingMedia] = useState(false);
   const [importingScene, setImportingScene] = useState(false);
   const packageId = d.scenePackage?.id;
@@ -299,16 +300,20 @@ export function Editor({
     patch({ states: stitch(a), startStateId: a[0].id });
     index(pos);
   }
-  const persist = (s: Show) => {
+  const persist = async (s: Show) => {
+    setSaving(true);
     try {
-      save(s);
+      await save(s);
       saved(s);
       note(tr("Saved locally"));
     } catch (e) {
       note(String(e));
+    } finally {
+      setSaving(false);
     }
   };
   async function duplicate() {
+    setSaving(true);
     try {
       const s = {
         ...schema.parse(d),
@@ -320,7 +325,7 @@ export function Editor({
         if (u.startsWith("blob:")) {
           try {
             await putMedia(
-              s.showId + "/" + a.uri,
+              s.showId, a.uri,
               new File([await (await fetch(u)).blob()], a.uri),
             );
           } finally {
@@ -329,13 +334,15 @@ export function Editor({
         }
       }
       const collection = sceneOf(d);
-      saveScripts([
+      await saveScripts([
         ...scriptsWithDraft({ ...d, collection }),
         { ...s, collection },
       ]);
       saved({ ...s, collection });
     } catch (e) {
       note(String(e));
+    } finally {
+      setSaving(false);
     }
   }
   async function testCue() {
@@ -442,7 +449,7 @@ export function Editor({
         id,
         uri: "assets/" + id + "/" + file.name,
       });
-      await putMedia(d.showId + "/" + asset.uri, file);
+      await putMedia(d.showId, asset.uri, file);
       set((current) => {
         if (!current.states.some((state) => state.actions.includes(action)))
           return current;
@@ -478,7 +485,7 @@ export function Editor({
         uri: "assets/speech/" + id + ".wav",
       };
       await putMedia(
-        d.showId + "/" + asset.uri,
+        d.showId, asset.uri,
         new File([audio], id + ".wav", { type: "audio/wav" }),
       );
       set((current) => {
@@ -502,18 +509,21 @@ export function Editor({
       setUploadingMedia(false);
     }
   }
-  function createScript(newScene: boolean) {
+  async function createScript(newScene: boolean) {
     const next = blankScript(d, newScene);
+    setSaving(true);
     try {
-      saveScripts([...scriptsWithDraft(d), next]);
+      await saveScripts([...scriptsWithDraft(d), next]);
       saved(next);
     } catch (e) {
       note(String(e));
+    } finally {
+      setSaving(false);
     }
   }
   return (
     <>
-      <section className="card editor">
+      <section className="card editor" inert={saving} aria-busy={saving}>
         <div className="tools">
           <button
             className="primary"
@@ -554,15 +564,19 @@ export function Editor({
               id="scene-script"
               value={d.showId}
               disabled={invalid}
-              onChange={(e) => {
+              onChange={async (e) => {
+                const selected = e.target.value;
+                setSaving(true);
                 try {
-                  save(d);
+                  await save(d);
                   const next = sceneScripts(d).find(
-                    (s) => s.showId === e.target.value,
+                    (s) => s.showId === selected,
                   );
                   if (next) saved(next);
                 } catch (err) {
                   note(String(err));
+                } finally {
+                  setSaving(false);
                 }
               }}
             >
@@ -778,7 +792,7 @@ export function Editor({
                 values={t.alternatives}
                 onChange={(alternatives) => turn({ alternatives })}
               />
-              {t.kind === "human_line" && <p>{tr("Match 70% of required words, including the last required word.")}</p>}
+              {t.kind === "human_line" && <p>{tr("Reach 70% coverage. Misheard words between exact matches earn half credit. A misheard ending counts when recognition finishes.")}</p>}
               <h3>{tr("Cue actions")}</h3>
               <div className="action-picker">
                 <label htmlFor="cue-action-type">{tr("Action type")}</label>
@@ -1255,7 +1269,7 @@ export function Editor({
                       type,
                     };
                     if (a.type !== type) throw Error(tr("Media type mismatch"));
-                    await putMedia(d.showId + "/" + a.uri, f);
+                    await putMedia(d.showId, a.uri, f);
                     if (!matches.length) assets.push(a);
                   }
                   patch({ assets });

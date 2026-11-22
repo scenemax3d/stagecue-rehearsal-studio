@@ -25,6 +25,7 @@ import {
   RotateCcw,
   Maximize2,
   Mic,
+  Volume2,
   ScrollText,
   ChevronDown,
   Eye,
@@ -38,7 +39,7 @@ import {
   Repeat2,
   SlidersHorizontal,
 } from "lucide-react";
-import { demo, projects, sceneOf, sceneScripts, saveScripts } from "./storage";
+import { demo, projects, sceneOf, sceneScripts, saveScripts, openDesktopLibrary } from "./storage";
 import type { Show } from "./model";
 import {
   displayText,
@@ -269,9 +270,9 @@ function Studio() {
             <StageCueFiles opened={s => { setList(projects()); activate(s); }} />
           </div>
           <h2>{tr("Available scenes")} <span>{scenes.length}</span></h2>
-          {!list.length && <button onClick={() => {
+          {!list.length && <button onClick={async () => {
             const next = blankScript(demo, true);
-            saveScripts([next]);
+            try { await saveScripts([next]); } catch (error) { window.alert(String(error)); return; }
             setList(projects());
             choose(next);
             location.hash = "editor";
@@ -363,14 +364,6 @@ function Studio() {
                 </select>
               </label>
             )}
-            {!edit && (
-              <StageCueFiles
-                opened={(s) => {
-                  setList(projects());
-                  choose(s);
-                }}
-              />
-            )}
           </div>
         </div>
         {edit ? (
@@ -429,6 +422,8 @@ function Player({
     active = !["IDLE", "ERROR", "FINISHED"].includes(e.phase),
     finished = e.phase === "FINISHED",
     done = finished ? show.states.length : index;
+  const yourTurn = t.kind === "human_line" && e.armed &&
+    (e.phase === "LISTENING" || e.phase === "CANDIDATE");
   const embed =
     !!show.scenePackage ||
     (show.sceneMax &&
@@ -699,7 +694,7 @@ function Player({
           <div className="linepanel">
             <div className="row between">
               <span className="eyebrow coral">
-                <Mic size={14} />{" "}
+                {t.kind === "human_line" ? <Mic size={14} aria-hidden="true" /> : <Volume2 size={14} aria-hidden="true" />}{" "}
                 {t.kind === "human_line"
                   ? tr("ACTOR LINE")
                   : tr("VIRTUAL PARTNER")}
@@ -760,10 +755,10 @@ function Player({
               <RotateCcw />
             </button>
             <span
-              className={"phase " + (active ? "live" : "")}
+              className={"phase " + (yourTurn ? "your-turn" : active ? "live" : "")}
               aria-live="polite"
             >
-              <i />
+              {yourTurn ? <Mic size={32} aria-label={tr("Your turn to speak")} role="img" /> : <i />}
               {phase[e.phase]}
             </span>
           </div>
@@ -804,8 +799,8 @@ function Player({
                 <span className="cuebody">
                   <span className="cuecaption">
                     {turn.kind === "human_line"
-                      ? tr("Actor line")
-                      : tr("Virtual partner")}
+                      ? <span className="speaker-label actor-label"><Mic aria-hidden="true" />{tr("Your line")}</span>
+                      : <span className="speaker-label partner-label"><Volume2 aria-hidden="true" />{tr("Virtual partner")}</span>}
                     {i === index && !finished && <b>{tr("Current")}</b>}
                   </span>
                   <strong dir="auto">
@@ -1019,4 +1014,17 @@ function Player({
     </>
   );
 }
-createRoot(document.getElementById("root")!).render(<Studio />);
+const root = createRoot(document.getElementById("root")!);
+async function openStudio() {
+  root.render(<main className="library-startup" role="status">{tr("Opening scene library…")}</main>);
+  try {
+    await openDesktopLibrary();
+    root.render(<Studio />);
+  } catch (error) {
+    root.render(<main className="library-startup" role="alert">
+      <p>{tr("Could not open the scene library.")} {String(error)}</p>
+      <button onClick={() => void openStudio()}>{tr("Retry")}</button>
+    </main>);
+  }
+}
+void openStudio();

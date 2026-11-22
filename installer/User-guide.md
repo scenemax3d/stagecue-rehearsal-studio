@@ -2,6 +2,14 @@
 
 Launch Stagecue from the Start menu. Closing its window stops its local services. The app includes the Hebrew recognizer, a multilingual Whisper fallback in the full edition, prerecorded partner audio, the SceneMax WebGPU projector, the multiplayer relay and the browser gateway. Local recognition runs offline. Browser speech and YouTube depend on external services. SceneMax rendering requires a WebGPU-capable graphics driver. The installer targets 64-bit Windows 10 build 19041 or later and includes the offline Microsoft WebView2 installer.
 
+## Updating Stagecue
+
+Close Studio and run setup under the same Windows account. Both desktop editions use `%LOCALAPPDATA%\Stagecue\Workspace\Library`. The installer updates a separate program folder.
+
+The library contains a JSON catalog, scene folders with dialogue and cue JSON, media files, and shared SceneMax packages. To back up the entire library, close Studio and copy the Library folder. Use Open Scene file and Export Scene File to exchange individual scenes.
+
+On first launch with this version, Studio copies existing scenes from the earlier WebView workspace. It publishes the new catalog after copying the media and SceneMax attachments. Subsequent launches read the folder library directly. The original WebView data is retained as a migration backup.
+
 ## Attach a scene to a play
 
 1. In SceneMax, export the complete scene for **Web**. Keep the export ZIP intact, including its manifest. Alternatively select a project folder containing a single entry named `scripts/main.smx` or `scripts/main` and its resource tree.

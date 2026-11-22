@@ -83,6 +83,11 @@ export function alignLine(parts: LinePart[], raw: string) {
     prev = row;
   }
   const marks: WordMark[] = tokens.map(() => "pending");
+  const endingIndex = tokens.findLastIndex(t => t.kind === "word");
+  let endingSubstitution = false;
+  let hasExactWordToRight = false;
+  let pendingSubstitutions = 0;
+  let anchoredSubstitutions = 0;
   const kept = spoken.map(() => true);
   let i = tokens.length,
     j = spoken.length,
@@ -93,6 +98,24 @@ export function alignLine(parts: LinePart[], raw: string) {
       lastAligned = Math.max(lastAligned, i - 1);
       marks[i - 1] =
         normalize(tokens[i - 1].text) === spoken[j - 1] ? "heard" : "unheard";
+      // Traceback runs right to left. Credit substitutions only once exact
+      // words anchor both sides. An omitted word never enters this count.
+      if (marks[i - 1] === "heard") {
+        anchoredSubstitutions += pendingSubstitutions;
+        pendingSubstitutions = 0;
+        hasExactWordToRight = true;
+      } else if (hasExactWordToRight) {
+        pendingSubstitutions++;
+      }
+      if (i - 1 === endingIndex && marks[i - 1] === "unheard") {
+        // An optional span can tie with a substitution during alignment.
+        // Its own words cannot stand in for the mandatory ending.
+        let start = endingIndex;
+        while (start > 0 && tokens[start - 1].kind === "optional") start--;
+        endingSubstitution = !tokens.slice(start).some(t =>
+          t.kind === "optional" && normalize(t.text).split(" ").includes(spoken[j - 1])
+        );
+      }
       i--;
       j--;
     } else if (step === omit) i--;
@@ -103,6 +126,8 @@ export function alignLine(parts: LinePart[], raw: string) {
   }
   const words = tokens.filter((t) => t.kind === "word");
   return {
+    endingSubstitution,
+    anchoredSubstitutions,
     line: words.map((p) => normalize(p.text)).join(" "),
     input: spoken.filter((_, k) => kept[k]).join(" "),
     marks: marks.flatMap((m, k) =>

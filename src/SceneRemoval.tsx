@@ -15,7 +15,7 @@ export function SceneRemoval({ scene, removed, close, changed }: {
     setBusy(true);
     try {
       if (confirm) await deleteLocalScene(scene.id);
-      else setSceneRemoved(scene.id, !removed);
+      else await setSceneRemoved(scene.id, !removed);
       changed();
     } catch (e) {
       setError(String(e));

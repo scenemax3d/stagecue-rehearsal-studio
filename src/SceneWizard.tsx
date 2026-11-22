@@ -15,11 +15,12 @@ const imageOptions = {
 };
 
 function createPrompt(c: Choices) {
+  const illustrateScene = "Read the whole scene and identify each visually distinct beat, including entrances, actions, reveals, changes of setting and shifts in a character’s expression. Create as many distinct images as the scene supports, covering every such beat from beginning to end, even when several occur in the same setting. Continue beyond two or three illustrations whenever more beats remain. Keep characters, costumes and locations visually consistent.";
   const imageTasks: Record<string, string> = {
     none: "Create a rehearsal without image cues.",
     supplied: "Use relevant pictures from the document or attached files as Show image cues.",
-    generate: "Generate original images that fit the dialogue, setting and mood. Keep characters visually consistent across illustrations.",
-    both: "Use relevant supplied illustrations, and generate original, visually consistent images for moments that lack suitable artwork.",
+    generate: "Generate original illustrations for the scene. " + illustrateScene,
+    both: "Use supplied illustrations for the beats they depict and generate an original image for every remaining beat. " + illustrateScene,
   };
   return [
     "Create a new scene for Stagecue Rehearsal Studio. Deliver a complete, ready-to-use .srs file for offline rehearsal.",

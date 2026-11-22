@@ -393,6 +393,8 @@ h1,
 .phase i {
   background: #92998c;
 }
+.phase.your-turn {color:#245c48;background:#e5f2e9;border-radius:8px;padding:4px 9px;font-weight:700;}
+.phase.your-turn svg {width:32px;height:32px;flex-shrink:0;}
 .phase.live i,
 .local i {
   background: #9eb596;
@@ -489,6 +491,11 @@ h1,
   font-weight: 600;
   font-size: 11px;
 }
+.cuecaption {flex-wrap:wrap;}
+.speaker-label {display:inline-flex;align-items:center;gap:5px;padding:2px 7px;border-radius:4px;font-weight:650;}
+.speaker-label svg {width:15px;height:15px;flex:none;}
+.actor-label {background:#e5f2e9;color:#245c48;}
+.partner-label {background:#eaf0f8;color:#354f72;}
 .cuebody strong {
   display: block;
   font-size: 16px;

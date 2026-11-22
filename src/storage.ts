@@ -1,6 +1,7 @@
 import { spokenText } from "./engine";
 import { localGateway } from "./localhost";
-import { deleteScenePackages } from "./sceneLibrary";
+import { diskLibrary, libraryRequest, library, commitCatalog, loadCatalog } from "./diskLibrary";
+import { deleteScenePackages, loadLegacyPackage, writePackage } from "./sceneLibrary";
 import { schema, type Show } from "./model";
 import example from "../public/example-show.json";
 import gaon from "../public/gaon-iris-gaon.json";
@@ -120,13 +121,14 @@ const scripts = [
 ];
 export const demo = schema.parse(example);
 function storedIds(key: string): string[] {
+  if (diskLibrary) return key === removedKey ? library.removed : library.deletedDefaults;
   return JSON.parse(localStorage.getItem(key) || "[]");
 }
 const removedKey = "stagecue.removedScenes";
 const deletedDefaultsKey = "stagecue.deletedDefaults";
 function allProjects(): Show[] {
   const deletedDefaults = storedIds(deletedDefaultsKey);
-  const list: unknown[] = JSON.parse(
+  const list: unknown[] = diskLibrary ? library.scripts : JSON.parse(
     localStorage.getItem("stagecue.projects") || "[]",
   );
   return [
@@ -146,10 +148,11 @@ export function projects(removed = false): Show[] {
   if (!hidden.size) return removed ? [] : allProjects();
   return allProjects().filter(s => hidden.has(sceneOf(s).id) === removed);
 }
-export function setSceneRemoved(id: string, removed: boolean) {
+export async function setSceneRemoved(id: string, removed: boolean) {
   const hidden = new Set(storedIds(removedKey));
   if (removed) hidden.add(id);
   else hidden.delete(id);
+  if (diskLibrary) return commitCatalog({removed: [...hidden]});
   localStorage.setItem(removedKey, JSON.stringify([...hidden]));
 }
 export function sceneOf(show: Show): NonNullable<Show["collection"]> {
@@ -181,7 +184,7 @@ export function scriptsWithDraft(draft: Show) {
         : s,
   );
 }
-export function saveScripts(scripts: Show[]) {
+export async function saveScripts(scripts: Show[]) {
   const byId = new Map(allProjects().map((s) => [s.showId, s]));
   for (const s of scripts) byId.set(s.showId, schema.parse(s));
   const titles = new Map(
@@ -189,20 +192,18 @@ export function saveScripts(scripts: Show[]) {
       .filter((s) => s.collection)
       .map((s) => [s.collection!.id, s.collection!]),
   );
-  localStorage.setItem(
-    "stagecue.projects",
-    JSON.stringify(
-      [...byId.values()].map((s) => {
-        const collection = titles.get(sceneOf(s).id);
-        return collection ? { ...s, collection } : s;
-      }),
-    ),
-  );
+  const updated = [...byId.values()].map(s => {
+    const collection = titles.get(sceneOf(s).id);
+    return collection ? {...s, collection} : s;
+  });
+  if (diskLibrary) await commitCatalog({scripts: updated});
+  else localStorage.setItem("stagecue.projects", JSON.stringify(updated));
 }
 export function save(s: Show) {
-  saveScripts(scriptsWithDraft(s));
+  return saveScripts(scriptsWithDraft(s));
 }
-const db = new Promise<IDBDatabase>((resolve, reject) => {
+let legacyDb: Promise<IDBDatabase> | undefined;
+const openMedia = () => legacyDb ??= new Promise<IDBDatabase>((resolve, reject) => {
   const req = indexedDB.open("stagecue-media", 1);
   req.onupgradeneeded = () => req.result.createObjectStore("files");
   req.onsuccess = () => resolve(req.result);
@@ -214,7 +215,18 @@ export async function deleteLocalScene(id: string) {
   const remaining = all.filter(s => sceneOf(s).id !== id);
   const referenced = new Set(remaining.map(s => s.scenePackage?.id));
   const packages = new Set(members.flatMap(s => s.scenePackage ? [s.scenePackage.id] : []));
-  const tx = (await db).transaction("files", "readwrite");
+  if (diskLibrary) {
+    const ids = new Set(members.map(s => s.showId));
+    const defaults = [demo, ...scripts].filter(s => ids.has(s.showId));
+    await commitCatalog({
+      scripts: library.scripts.filter(s => !ids.has(s.showId)),
+      removed: library.removed.filter(key => key !== id),
+      deletedDefaults: [...new Set([...library.deletedDefaults, ...defaults.map(s => s.showId)])],
+    });
+    await libraryRequest("clean", JSON.stringify({scripts:[...ids], packages:[...packages].filter(key => !referenced.has(key))}));
+    return;
+  }
+  const tx = (await openMedia()).transaction("files", "readwrite");
   for (const s of members) {
     // All media for this script, including recordings superseded during editing.
     const prefix = s.showId + "/";
@@ -245,18 +257,26 @@ export async function deleteLocalScene(id: string) {
   ));
   const saved: Show[] = JSON.parse(localStorage.getItem("stagecue.projects") || "[]");
   localStorage.setItem("stagecue.projects", JSON.stringify(saved.filter(s => !ids.has(s.showId))));
-  setSceneRemoved(id, false);
+  await setSceneRemoved(id, false);
 }
-export async function putMedia(key: string, file: File) {
-  const tx = (await db).transaction("files", "readwrite");
-  tx.objectStore("files").put(file, key);
+export async function putMedia(showId: string, uri: string, file: File) {
+  if (diskLibrary) {
+    await libraryRequest("putMedia", file, {id:showId, uri, type:file.type});
+    return;
+  }
+  const tx = (await openMedia()).transaction("files", "readwrite");
+  tx.objectStore("files").put(file, showId + "/" + uri);
   await new Promise<void>((ok, no) => {
     tx.oncomplete = () => ok();
     tx.onerror = () => no(tx.error);
   });
 }
 export async function importMedia(showId: string, files: Map<string, Blob>) {
-  const tx = (await db).transaction("files", "readwrite");
+  if (diskLibrary) {
+    for (const [uri, blob] of files) await libraryRequest("putMedia", blob, {id:showId, uri, type:blob.type});
+    return;
+  }
+  const tx = (await openMedia()).transaction("files", "readwrite");
   for (const [uri, blob] of files)
     tx.objectStore("files").put(blob, showId + "/" + uri);
   await new Promise<void>((ok, fail) => {
@@ -265,7 +285,11 @@ export async function importMedia(showId: string, files: Map<string, Blob>) {
   });
 }
 export async function mediaUrl(show: Show, asset: Show["assets"][number]) {
-  const req = (await db)
+  if (diskLibrary) {
+    const res = await libraryRequest("getMedia", undefined, {id:show.showId, uri:asset.uri});
+    return res.ok ? URL.createObjectURL(await res.blob()) : "/" + asset.uri;
+  }
+  const req = (await openMedia())
     .transaction("files")
     .objectStore("files")
     .get(show.showId + "/" + asset.uri);
@@ -274,4 +298,31 @@ export async function mediaUrl(show: Show, asset: Show["assets"][number]) {
     req.onerror = () => no(req.error);
   });
   return blob ? URL.createObjectURL(blob) : "/" + asset.uri;
+}
+
+function readRequest<T>(request: IDBRequest<T>): Promise<T> {
+  return new Promise((resolve,reject) => {
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+export async function openDesktopLibrary() {
+  if (!diskLibrary || await loadCatalog()) return;
+  // Publish the catalog only after every legacy script, asset and attachment is copied.
+  // A failed migration can retry without changing the original workspace.
+  const scripts: Show[] = JSON.parse(localStorage.getItem("stagecue.projects") || "[]").map((s:unknown) => schema.parse(s));
+  const media = await openMedia();
+  const keys = await readRequest(media.transaction("files").objectStore("files").getAllKeys());
+  const owners = [...new Set([...scripts, demo, ...allProjects()].map(s => s.showId))].sort((a,b) => b.length-a.length);
+  for (const key of keys) {
+    if (typeof key !== "string") continue;
+    const owner = owners.find(id => key.startsWith(id + "/assets/"));
+    if (!owner) continue;
+    const blob = await readRequest<Blob>(media.transaction("files").objectStore("files").get(key));
+    await libraryRequest("putMedia", blob, {id:owner, uri:key.slice(owner.length+1), type:blob.type});
+  }
+  for (const id of new Set(scripts.flatMap(s => s.scenePackage ? [s.scenePackage.id] : [])))
+    await writePackage(id, await loadLegacyPackage(id));
+  await commitCatalog({scripts, removed: JSON.parse(localStorage.getItem(removedKey) || "[]"),
+    deletedDefaults: JSON.parse(localStorage.getItem(deletedDefaultsKey) || "[]")});
 }

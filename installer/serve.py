@@ -1,4 +1,4 @@
-"""Loopback, read-only studio host."""
+"""Loopback host for the studio, its per-user content library and offline speech."""
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 import json
@@ -34,12 +34,23 @@ class StudioFiles(SimpleHTTPRequestHandler):
         return super().send_head()
 
     def do_POST(self):
-        if self.path != "/api/speech":
+        library = not DEV and self.path.split("?", 1)[0] == "/api/library"
+        if self.path != "/api/speech" and not library:
             self.send_error(404)
             return
         allowed = {"http://127.0.0.1:21870"} if not DEV else {"http://127.0.0.1:5173", "http://localhost:5173"}
         if self.headers.get("Host") != f"127.0.0.1:{PORT}" or self.headers.get("Origin") not in allowed:
             self.send_error(403)
+            return
+        if library:
+            if self.headers.get("X-Stagecue-Library") != "1":
+                self.send_error(403)
+                return
+            try:
+                from content_library import handle
+                handle(self)
+            except (ValueError, KeyError, OSError) as error:
+                self.reply(400, "text/plain; charset=utf-8", str(error).encode())
             return
         if self.headers.get_content_type() != "application/json":
             self.send_error(415)
