@@ -1,3 +1,5 @@
+import { zipSync, strToU8 } from "fflate";
+import { readFile } from "node:fs/promises";
 import { test, expect } from "@playwright/test";
 test("runs the five prerecorded cues and supports transport", async ({
   page,
@@ -137,7 +139,7 @@ test("jump, replay and emergency stop cancel pending progression", async ({
     .getByRole("button", { name: "Stop rehearsal", exact: true })
     .click();
   await expect(page.locator(".phase")).toHaveText("Ready");
-  await expect(page.locator(".counter")).toHaveText("01 / 05");
+  await expect(page.locator(".cue.current .num")).toHaveText("01");
 });
 
 test("cue sheet follows automatic progress inside its own scroll container", async ({
@@ -164,9 +166,9 @@ test("cue sheet follows automatic progress inside its own scroll container", asy
     .click();
   await page.locator(".sheetlist").evaluate((el) => (el.scrollTop = 0));
   await page.getByRole("button", { name: "Simulate", exact: true }).click();
-  await expect(page.locator(".counter")).toHaveText("26 / 29");
+  await expect(page.locator(".cue.current .num")).toHaveText("26");
   await expect.poll(visible).toBe(true);
-  await expect(page.locator(".counter")).toHaveText("27 / 29", {
+  await expect(page.locator(".cue.current .num")).toHaveText("27", {
     timeout: 15000,
   });
   await expect.poll(visible).toBe(true);
@@ -289,7 +291,7 @@ test("optional words survive editing and the actor can review word matches after
   await expect(page.locator(".line .match-optional")).toHaveText("לעשות עם זה");
   await spoken.fill("אנחנו חייבים משהו עכשיו");
   await page.getByRole("button", { name: "Simulate", exact: true }).click();
-  await expect(page.locator(".counter")).toHaveText("02 / 05", {
+  await expect(page.locator(".cue.current .num")).toHaveText("02", {
     timeout: 12000,
   });
   await expect(page.locator(".word-feedback p .match-heard")).toHaveCount(4);
@@ -581,7 +583,7 @@ test("Oliver's timed picture leaves the next actor cue listening", async ({ page
   await page.locator(".transport").getByRole("button", { name: "Start rehearsal", exact: true }).click();
   const simulate = page.getByRole("button", { name: "Simulate", exact: true });
   await simulate.click();
-  await expect(page.locator(".counter")).toHaveText("02 / 02", { timeout: 2000 });
+  await expect(page.locator(".cue.current .num")).toHaveText("02", { timeout: 2000 });
   await expect(page.locator(".phase")).toHaveText("Listening");
   await expect(page.locator(".stage img")).toBeVisible();
   await page.getByLabel("Simulated Hebrew utterance").fill("איכס מה זה הדבר הזה");
@@ -603,8 +605,13 @@ test("a blocking wait counts down, pauses, and clears on advance or stop", async
   const simulate = page.getByRole("button", { name: "Simulate", exact: true });
   const progress = page.getByRole("progressbar", { name: "Timed wait" });
   await start.click();
+  const readingOffset = () => page.locator(".monitor").evaluate(card =>
+    card.querySelector(".linepanel")!.getBoundingClientRect().top - card.getBoundingClientRect().top
+  );
+  const initialOffset = await readingOffset();
   await simulate.click();
   await expect(progress).toBeVisible();
+  expect(await readingOffset()).toBe(initialOffset);
   await expect.poll(() => progress.evaluate(el => (el as HTMLProgressElement).value)).toBeGreaterThan(0);
   await page.locator(".transport").getByRole("button", { name: "Pause rehearsal" }).click();
   const remaining = page.locator(".cue-countdown span");
@@ -613,7 +620,7 @@ test("a blocking wait counts down, pauses, and clears on advance or stop", async
   await page.waitForTimeout(350);
   await expect(remaining).toHaveText(frozen);
   await page.locator(".transport").getByRole("button", { name: "Resume", exact: true }).click();
-  await expect(page.locator(".counter")).toHaveText("02 / 05");
+  await expect(page.locator(".cue.current .num")).toHaveText("02");
   await expect(progress).toHaveCount(0);
   await page.getByRole("button", { name: "Restart rehearsal" }).click();
   await simulate.click();
@@ -691,9 +698,22 @@ test("the elevator preview fills its card throughout rehearsal and resize", asyn
   }
   await page.getByLabel("Input source").selectOption("mock");
   await page.locator(".transport").getByRole("button", {name:"Start rehearsal", exact:true}).click();
-  for (const [width, height] of [[1536, 620], [950, 740], [600, 760]]) {
+  const longActorCue = page.locator(".cue").filter({has:page.locator(".actor-label")})
+    .filter({hasText:/.{95}/}).first();
+  await longActorCue.click();
+  for (const [width, height] of [[1536, 620], [1280, 540], [800, 450], [950, 740], [600, 760]]) {
     await page.setViewportSize({width,height});
     await assertFits();
+    const rect = (await preview.boundingBox())!;
+    const line = page.locator(".linepanel .line");
+    const reading = await line.evaluate(el => ({
+      top: el.getBoundingClientRect().top,
+      row: parseFloat(getComputedStyle(el).lineHeight),
+    }));
+    expect(reading.top + 3 * reading.row).toBeLessThanOrEqual(height);
+    // The preview still uses the available height above the reserved dialogue.
+    expect(rect.height).toBeGreaterThanOrEqual(Math.min(rect.width * 2 / 3,
+      height - rect.y - 3 * reading.row - 22) - 2);
   }
   await page.getByRole("button", {name:"Stop rehearsal", exact:true}).click();
   await assertFits();
@@ -739,4 +759,36 @@ test("your microphone appears only on live actor turns and cue rows identify bot
   await expect(mic).toBeVisible({timeout:15000});
   await page.getByLabel("Stop rehearsal").click();
   await expect(mic).toHaveCount(0);
+});
+
+test("long stage directions follow dialogue and leave rehearsal controls accessible", async ({page}) => {
+  const note = "הערת במה ארוכה ".repeat(55).trim();
+  const show = JSON.parse(await readFile("public/example-show.json","utf8"));
+  show.showId = "reading-layout";
+  Object.assign(show.states[0], {scriptedTurn:true, expectedText:`(${note}) אמא? [בשקט] אמא!`});
+  show.assets = [];
+  show.states = [Object.assign(show.states[0], {nextStateId:null, actions:[]})];
+  await page.setViewportSize({width:800,height:450});
+  await page.goto("/");
+  await page.locator('input[accept=".srs"]').setInputFiles({
+    name:"reading.srs", mimeType:"application/zip", buffer:Buffer.from(zipSync({
+      "stagecue.json":strToU8(JSON.stringify({format:"StageCue",version:1,media:{}})),
+      "show.json":strToU8(JSON.stringify(show)),
+    })),
+  });
+  await page.getByLabel("Input source").selectOption("mock");
+  await page.locator("header").getByRole("button",{name:"Start rehearsal",exact:true}).click();
+  const panel = page.locator(".linepanel");
+  await expect(panel.locator(".line")).toHaveText("אמא? אמא!");
+  await expect(panel.locator(".line ~ .reading-note")).toHaveText([`(${note})`, "[בשקט]"]);
+  const transport = page.locator(".transport");
+  await expect(page.locator("header .transport button")).toHaveCount(5);
+  await expect(page.getByRole("button",{name:"Pause rehearsal",exact:true})).toHaveCount(1);
+  await expect(page.locator(".stage .phase")).toHaveText("Listening");
+  await panel.evaluate(el => el.scrollTop = el.scrollHeight);
+  expect(await panel.evaluate(el => el.scrollTop)).toBeGreaterThan(0);
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+  await expect(transport.getByRole("button",{name:"Manually fire current cue"})).toBeInViewport({ratio:1});
+  await transport.getByRole("button",{name:"Stop rehearsal",exact:true}).click();
+  await expect(page.locator(".phase")).toHaveText("Ready");
 });

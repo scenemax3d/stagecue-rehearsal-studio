@@ -235,7 +235,7 @@ function Studio() {
               {tr("Scene Editor")}{" "}
             </a></>}
           </nav>
-          {!home && !edit && <div className="menu-transport" ref={setMenuSlot} />}
+          {!home && !edit && <div className="menu-transport transport" ref={setMenuSlot} />}
           <HelpMenu />
           <button
             className="settings-trigger"
@@ -422,6 +422,20 @@ function Player({
     active = !["IDLE", "ERROR", "FINISHED"].includes(e.phase),
     finished = e.phase === "FINISHED",
     done = finished ? show.states.length : index;
+  const parts = React.useMemo(() => lineParts(t.expectedText, t.scriptedTurn), [t.expectedText, t.scriptedTurn]);
+  React.useLayoutEffect(() => {
+    const preview = stage.current;
+    const header = menuSlot?.closest("header");
+    if (!active || !preview || !header) return;
+    const measure = () => {
+      const top = preview.getBoundingClientRect().top + window.scrollY;
+      preview.style.setProperty("--preview-top", top + "px");
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(header);
+    return () => observer.disconnect();
+  }, [active, menuSlot]);
   const yourTurn = t.kind === "human_line" && e.armed &&
     (e.phase === "LISTENING" || e.phase === "CANDIDATE");
   const embed =
@@ -622,7 +636,42 @@ function Player({
   );
   return (
     <>
-      {menuSlot && createPortal(rehearsalButton, menuSlot)}
+      {menuSlot && createPortal(
+        <>
+          {rehearsalButton}
+          <button
+            title={tr("Stop rehearsal")}
+            aria-label={tr("Stop rehearsal")}
+            disabled={!active && !finished && !output}
+            onClick={() => s.stop()}
+          >
+            <Square />
+          </button>
+          <button
+            title={tr("Replay last cue")}
+            aria-label={tr("Replay last cue")}
+            disabled={!e.last || !e.armed}
+            onClick={() => s.replay()}
+          >
+            <Repeat2 />
+          </button>
+          <button
+            title={tr("Manually fire current cue")}
+            aria-label={tr("Manually fire current cue")}
+            disabled={!e.armed}
+            onClick={() => s.advance()}
+          >
+            <SkipForward />
+          </button>
+          <button
+            title={tr("Restart rehearsal")}
+            aria-label={tr("Restart rehearsal")}
+            onClick={() => void s.start(show.startStateId)}
+          >
+            <RotateCcw />
+          </button>
+        </>, menuSlot
+      )}
       <div className={active || s.busy ? "upper rehearsing" : "upper"}>
         <section className="card monitor">
           <div
@@ -677,6 +726,27 @@ function Player({
                 </span>
               </div>
             </div>
+            <span
+              className={"phase " + (yourTurn ? "your-turn" : active ? "live" : "")}
+              aria-live="polite"
+            >
+              {yourTurn ? <Mic size={32} aria-label={tr("Your turn to speak")} role="img" /> : <i />}
+              {phase[e.phase]}
+            </span>
+            <span className="stage-speaker" role="img"
+              aria-label={tr(t.kind === "human_line" ? "ACTOR LINE" : "VIRTUAL PARTNER")}
+              title={tr(t.kind === "human_line" ? "ACTOR LINE" : "VIRTUAL PARTNER")}>
+              {t.kind === "human_line" ? <Mic size={18} aria-hidden="true" /> : <Volume2 size={18} aria-hidden="true" />}
+            </span>
+            {timer && (
+              <div className="cue-countdown" data-audio={timer.label === "Preparing speech" || timer.label === "Audio playback"}>
+                <div><strong>{tr(timer.label)}</strong><span>
+                  {e.phase === "PAUSED" && tr("Paused") + (timer.total ? " · " : "")}
+                  {timer.total > 0 && tr("{n} s remaining").replace("{n}", (Math.ceil(timer.remaining / 100) / 10).toLocaleString(language))}
+                </span></div>
+                <progress aria-label={tr(timer.label)} max={timer.total || 1} value={timer.total ? timer.total - timer.remaining : undefined} />
+              </div>
+            )}
           </div>
           {embed && playerStatus === "error" && (
             <div className="player-retry" role="status">
@@ -691,24 +761,13 @@ function Player({
               </button>
             </div>
           )}
-          <div className="linepanel">
-            <div className="row between">
-              <span className="eyebrow coral">
-                {t.kind === "human_line" ? <Mic size={14} aria-hidden="true" /> : <Volume2 size={14} aria-hidden="true" />}{" "}
-                {t.kind === "human_line"
-                  ? tr("ACTOR LINE")
-                  : tr("VIRTUAL PARTNER")}
-              </span>
-              <span className="counter">
-                {pad(index + 1)} / {pad(show.states.length)}
-              </span>
-            </div>
+          <div className="linepanel" key={t.id}>
             <div className="line" dir={hidden ? "ltr" : "auto"}>
               {hidden ? (
                 tr("Script hidden")
               ) : (
                 <MarkedLine
-                  parts={lineParts(t.expectedText, t.scriptedTurn)}
+                  parts={parts.map(p => p.kind === "direction" ? { kind: "punctuation", text: " " } : p)}
                   marks={
                     e.feedback?.turnId === t.id && !e.feedback.alternative
                       ? e.feedback.marks
@@ -717,60 +776,13 @@ function Player({
                 />
               )}
             </div>
+            {!hidden && parts.filter(p => p.kind === "direction").map((p, i) => (
+              <div className="reading-note" dir="auto" key={i}>{p.text}</div>
+            ))}
             <div className="actor">
               <span /> {t.actor}
             </div>
           </div>
-          <div className="transport">
-            {rehearsalButton}
-            <button
-              title={tr("Stop rehearsal")}
-              aria-label={tr("Stop rehearsal")}
-              disabled={!active && !finished && !output}
-              onClick={() => s.stop()}
-            >
-              <Square />
-            </button>
-            <button
-              title={tr("Replay last cue")}
-              aria-label={tr("Replay last cue")}
-              disabled={!e.last || !e.armed}
-              onClick={() => s.replay()}
-            >
-              <Repeat2 />
-            </button>
-            <button
-              title={tr("Manually fire current cue")}
-              aria-label={tr("Manually fire current cue")}
-              disabled={!e.armed}
-              onClick={() => s.advance()}
-            >
-              <SkipForward />
-            </button>
-            <button
-              title={tr("Restart rehearsal")}
-              aria-label={tr("Restart rehearsal")}
-              onClick={() => void s.start(show.startStateId)}
-            >
-              <RotateCcw />
-            </button>
-            <span
-              className={"phase " + (yourTurn ? "your-turn" : active ? "live" : "")}
-              aria-live="polite"
-            >
-              {yourTurn ? <Mic size={32} aria-label={tr("Your turn to speak")} role="img" /> : <i />}
-              {phase[e.phase]}
-            </span>
-          </div>
-          {timer && (
-            <div className="cue-countdown">
-              <div><strong>{tr(timer.label)}</strong><span>
-                {e.phase === "PAUSED" && tr("Paused") + (timer.total ? " · " : "")}
-                {timer.total > 0 && tr("{n} s remaining").replace("{n}", (Math.ceil(timer.remaining / 100) / 10).toLocaleString(language))}
-              </span></div>
-              <progress aria-label={tr(timer.label)} max={timer.total || 1} value={timer.total ? timer.total - timer.remaining : undefined} />
-            </div>
-          )}
         </section>
         <section className="card sheet">
           <div className="cardhead">

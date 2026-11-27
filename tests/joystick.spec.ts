@@ -41,7 +41,7 @@ test("a saved controller press fires one simulator cue per release", async ({
     .locator(".transport").getByRole("button", { name: "Start rehearsal", exact: true })
     .click();
   await press(true);
-  await expect(page.locator(".counter")).toHaveText("02 / 05", {
+  await expect(page.locator(".cue.current .num")).toHaveText("02", {
     timeout: 12000,
   });
   await page.waitForTimeout(350);
